@@ -7,11 +7,13 @@ PREFIX time: <http://www.w3.org/2006/time#>
 SELECT DISTINCT {% for f in columns %} {%- set n = loop.index -%}
                 ?col{{n}}, {% endfor -%} ?value
 WHERE {
+  {%- set obs_uri = notations.lookup_dimension_uri('measure#obsValue')['uri'] %}
 
   ?observation
     a qb:Observation ;
     qb:dataSet {{ dataset|uri_n3 }} ;
-    sdmx-measure:obsValue ?value .
+    {# sdmx-measure:obsValue ?value . #}
+    {{ obs_uri|uri_n3 }} ?value .
 
 {%- for f_dimension_code, f_option_code in filters %}
 {{ one_filter('observation', 'filter_%d' % loop.index,

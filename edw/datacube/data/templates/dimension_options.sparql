@@ -1,4 +1,5 @@
 {%- from 'bits.sparql' import one_filter, one_dimension, group_dimension with context -%}
+
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX qb: <http://purl.org/linked-data/cube#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -11,31 +12,33 @@ SELECT DISTINCT ?uri, ?interval_type, ?parent_year WHERE {
     if dimension_code in group_dimensions
     else '?uri' %}
 
-  ?observation
-    qb:dataSet {{ dataset|uri_n3 }} ;
-    ?dimension {{ variable }} .
+    ?observation
+        qb:dataSet {{ dataset|uri_n3 }} ;
+        ?dimension {{ variable }} .
 
 {%- for f_dimension_code, f_option_code in filters %}
-  {{ one_filter('observation', 'filter_%d' % loop.index,
-                f_dimension_code, f_option_code) }}
+    {{ one_filter('observation', 'filter_%d' % loop.index,
+                    f_dimension_code, f_option_code) }}
 {%- endfor %}
 
 {% if dimension_code in group_dimensions %}
-  {{ group_dimension(dimension_code) }}
+    {{ group_dimension(dimension_code) }}
 {%- else %}
-  ?observation dad-prop:{{ dimension_code }} ?uri.
+    {#?observation dad-prop:{{ dimension_code }} ?uri.#}
+    {%- set dimension_uri = notations.lookup_dimension_uri(dimension_code)['uri'] %}
+    ?observation {{ dimension_uri|uri_n3 }} ?uri.
 {% endif %}
 
 {% if dimension_code == 'time-period' %}
-OPTIONAL {
-    ?uri a ?interval_type .
-    ?interval_type rdfs:subClassOf interval:CalendarInterval .
-}
+    OPTIONAL {
+        ?uri a ?interval_type .
+        ?interval_type rdfs:subClassOf interval:CalendarInterval .
+    }
 
-OPTIONAL {
-    ?uri time:intervalDuring ?parent_year .
-    ?parent_year a interval:Year .
-}
+    OPTIONAL {
+        ?uri time:intervalDuring ?parent_year .
+        ?parent_year a interval:Year .
+    }
 {% endif %}
 
 }

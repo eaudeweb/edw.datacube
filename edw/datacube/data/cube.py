@@ -69,6 +69,14 @@ class NotationMap(object):
     def __init__(self, cube):
         self.cube = cube
 
+        self.NS_DIMENSIONS = {}
+        for item in self.cube.get_dimensions(flat=True):
+            code = item['notation']
+            uri = item['dimension']
+            if code is None:
+                code = uri.split('/')[-1]
+            self.NS_DIMENSIONS.update({code: uri})
+
     def update(self):
         t0 = time.time()
         logger.info('loading notation cache')
@@ -89,6 +97,13 @@ class NotationMap(object):
     def get(self):
         cache_key = (self.cube.endpoint, self.cube.dataset)
         return data_cache.get(cache_key, self.update)
+
+    def lookup_dimension_uri(self, dimension_code):
+        return {
+            'uri': dict(self.NS_DIMENSIONS).get(dimension_code),
+            'namespace': dimension_code,
+            'notation': None
+        }
 
     def lookup_notation(self, namespace, notation):
         data = self.get()
@@ -540,6 +555,7 @@ class Cube(object):
     def dump(self, data_format=''):
         query = sparql_env.get_template('dump.sparql').render(**{
             'dataset': self.dataset,
+            'notations': self.notations
         })
         if data_format:
             params = urllib.urlencode({
