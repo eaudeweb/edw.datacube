@@ -558,10 +558,6 @@ class Cube(object):
             'notations': self.notations
         })
         if data_format:
-            import requests
-            return requests.get(self.endpoint, stream=True,
-                                params={'query': query, 'format': data_format})
-
             params = urllib.urlencode({
                 'query': query,
                 'format': data_format,
