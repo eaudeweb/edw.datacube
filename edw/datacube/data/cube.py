@@ -221,7 +221,7 @@ class Cube(object):
                 parent = None
                 inner = None
             return (parent, inner,)
-            
+
         return sorted(res, key=_sort_key)
 
     def get_dimension_labels(self, dimension, value):
@@ -558,6 +558,10 @@ class Cube(object):
             'notations': self.notations
         })
         if data_format:
+            import requests
+            return requests.get(self.endpoint, stream=True,
+                                params={'query': query, 'format': data_format})
+
             params = urllib.urlencode({
                 'query': query,
                 'format': data_format,

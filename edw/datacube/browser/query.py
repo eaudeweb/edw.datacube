@@ -543,12 +543,24 @@ class AjaxDataView(BrowserView):
             writer.writerow(encoded_row)
         return response
 
+    def dump_csv_new(self, response, dialect=csv.excel):
+        resp = self.cube.dump(data_format='application/csv')
+        import tempfile
+        csv_file = tempfile.TemporaryFile(mode='w+b')
+        for line in resp.iter_lines():
+            csv_file.write('%s\n' % line)
+
+        csv_file.flush()
+        csv_file.seek(0)
+        return response
+
     def download_csv(self):
         response = self.request.response
         response.setHeader('Content-type', 'text/csv; charset=utf-8')
         filename = self.context.getId() + '.csv'
         response.setHeader('Content-Disposition',
                            'attachment;filename=%s' % filename)
+        return self.dump_csv_new(response)
         return self.dump_csv(response)
 
     def download_tsv(self):
@@ -569,3 +581,7 @@ class AjaxDataView(BrowserView):
         data = self.cube.dump(data_format='application/rdf+xml')
         response.write(data)
         return response
+
+    def testing(self):
+        return self.cube.dump()
+        return self.cube.endpoint
