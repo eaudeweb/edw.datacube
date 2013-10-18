@@ -1,0 +1,12 @@
+PREFIX qb: <http://purl.org/linked-data/cube#>
+
+CONSTRUCT { ?x ?y ?z }
+WHERE {
+  GRAPH ?g {
+     {{ dataset|uri_n3 }} a qb:DataSet
+  }
+  
+  GRAPH ?g {
+   ?x ?y ?z
+  }
+}
