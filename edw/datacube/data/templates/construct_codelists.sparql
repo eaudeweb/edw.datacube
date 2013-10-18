@@ -1,0 +1,13 @@
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+CONSTRUCT {
+?uri ?p ?o
+}
+WHERE {
+  {{ dataset|uri_n3 }} qb:structure ?structure .
+  ?structure qb:component [?type ?dimension] .
+  ?dimension qb:codeList [ skos:hasTopConcept ?uri ] .
+  ?uri ?p ?o
+
+} 
