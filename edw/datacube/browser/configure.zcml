@@ -38,14 +38,6 @@
     />
 
   <browser:page
-    name="testing"
-    for="..interfaces.IDataCube"
-    permission="zope2.View"
-    class=".query.AjaxDataView"
-    attribute="testing"
-    />
-
-  <browser:page
     name="data-rdf"
     for="..interfaces.IDataCube"
     permission="zope2.View"

@@ -23,6 +23,7 @@ def cacheKey(method, self, *args, **kwargs):
     """
     return (self.context.absolute_url(1), dict(self.request.form))
 
+
 class AjaxDataView(BrowserView):
 
     def __init__(self, context, request):
@@ -570,6 +571,3 @@ class AjaxDataView(BrowserView):
         response.write(data)
         return response
 
-    def testing(self):
-        return self.cube.dump()
-        return self.cube.endpoint

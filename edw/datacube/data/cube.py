@@ -105,6 +105,20 @@ class NotationMap(object):
             'notation': None
         }
 
+    def lookup_measure_uri(self):
+        try:
+            measure_key = [
+                key for key in self.NS_DIMENSIONS.keys()
+                if key.startswith('measure')
+            ][0]
+            return {
+                'uri': self.NS_DIMENSIONS[measure_key],
+                'namespace': measure_key.replace('measure#', ''),
+                'notation': None
+            }
+        except IndexError:
+            return None
+
     def lookup_notation(self, namespace, notation):
         data = self.get()
         by_notation = data['by_notation']
