@@ -3,7 +3,7 @@ PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 
 SELECT DISTINCT ?breakdown, ?indicator, ?ref_area, ?time_period, ?unit_measure, ?value WHERE {
-  {%- set obs_uri = notations.lookup_dimension_uri('measure#obsValue')['uri'] %}
+  {%- set obs_uri = notations.lookup_measure_uri()['uri'] %}
 
   ?observation
     a qb:Observation ;
