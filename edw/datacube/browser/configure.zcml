@@ -197,4 +197,28 @@
     permission="zope2.View"
     />
 
+  <browser:page
+    name="codelists"
+    for="..interfaces.IDataCube"
+    permission="zope2.View"
+    class=".query.AjaxDataView"
+    attribute="download_codelists"
+    />
+
+  <browser:page
+    name="structure"
+    for="..interfaces.IDataCube"
+    permission="zope2.View"
+    class=".query.AjaxDataView"
+    attribute="download_structure"
+    />
+
+  <browser:page
+    name="get_dataset_metadata"
+    for="..interfaces.IDataCube"
+    permission="zope2.View"
+    class=".query.AjaxDataView"
+    attribute="download_dataset_metadata"
+    />
+
 </configure>

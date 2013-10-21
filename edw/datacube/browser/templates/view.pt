@@ -97,11 +97,22 @@
     </ul>
     <strong>Formats suitable for machine-to-machine communication</strong>
     <ul>
+        <!--
       <li>Data: <a href="@@data-rdf" rel="nofollow">RDF</a> <span>(~190Mb)</span></li>
       <li>Codelists: <a href="http://semantic.digital-agenda-data.eu/codelist.rdf">RDF</a></li>
       <li>Objects in scheme: <a href="http://semantic.digital-agenda-data.eu/def/scheme.rdf">RDF</a></li>
       <li>Available data models: <a href="http://semantic.digital-agenda-data.eu/def/dsd.rdf">RDF</a></li>
       <li>Observations from datasets: <a href="http://semantic.digital-agenda-data.eu/data.rdf">RDF</a></li>
+        -->
+        <li>
+            <a href="@@codelists" rel="nofollow">Codelists</a>
+        </li>
+        <li>
+            <a href="@@structure" rel="nofollow">Structure</a>
+        </li>
+        <li>
+            <a href="@@get_dataset_metadata" rel="nofollow">Dataset metadata</a>
+        </li>
     </ul>
     <div id="dataset-navigation" class="navigation-widget"></div>
   </div>

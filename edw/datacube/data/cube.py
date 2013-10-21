@@ -579,3 +579,19 @@ class Cube(object):
             result = urllib2.urlopen(self.endpoint, data=params)
             return result.read()
         return self._execute(query)
+
+    def dump_constructs(self, format='text/rdf+n3',
+                        template='construct_codelists.sparql'):
+        """
+        Sends queries directly to the endpoint.
+        Returns the Virtuoso response.
+        """
+
+        query = sparql_env.get_template(template).render(**{
+            'dataset': self.dataset
+        })
+        data = urllib.urlencode({
+            'query': query,
+            'format': format
+        })
+        return urllib2.urlopen(self.endpoint, data=data).read()

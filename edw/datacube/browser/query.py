@@ -571,3 +571,35 @@ class AjaxDataView(BrowserView):
         response.write(data)
         return response
 
+    def download_codelists(self):
+        response = self.request.response
+        response.setHeader('Content-type', 'text/rdf+n3; charset=utf-8')
+        filename = '%s-codelists.rdf' % self.context.getId()
+        response.setHeader('Content-Disposition',
+                           'attachment;filename=%s' % filename)
+        response.write('')
+        data = self.cube.dump_constructs(template='construct_codelists.sparql')
+        response.write(data)
+        return response
+
+    def download_structure(self):
+        response = self.request.response
+        response.setHeader('Content-type', 'text/rdf+n3; charset=utf-8')
+        filename = '%s-structure.rdf' % self.context.getId()
+        response.setHeader('Content-Disposition',
+                           'attachment;filename=%s' % filename)
+        response.write('')
+        data = self.cube.dump_constructs(template='construct_structure.sparql')
+        response.write(data)
+        return response
+
+    def download_dataset_metadata(self):
+        response = self.request.response
+        response.setHeader('Content-type', 'text/rdf+n3; charset=utf-8')
+        filename = '%s-metadata.rdf' % self.context.getId()
+        response.setHeader('Content-Disposition',
+                           'attachment;filename=%s' % filename)
+        response.write('')
+        data = self.cube.dump_constructs(template='construct_dataset_metadata.sparql')
+        response.write(data)
+        return response
