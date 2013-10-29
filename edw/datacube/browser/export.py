@@ -262,6 +262,51 @@ class ExportRDF(BrowserView):
         return ""
 
 
+def cairosvg_surface_color(string=None, opacity=1):
+    """
+    Replace ``string`` representing a color by a RGBA tuple.
+    Function overwritten to catch exceptions at line 295.
+    """
+    from cairosvg.surface.colors import COLORS
+
+    if not string or string in ("none", "transparent"):
+        return (0, 0, 0, 0)
+
+    string = string.strip().lower()
+
+    if string in COLORS:
+        string = COLORS[string]
+
+    if string.startswith("rgba"):
+        r, g, b, a = tuple(
+            float(i.strip(" %")) * 2.55 if "%" in i else float(i)
+            for i in string.strip(" rgba()").split(","))
+        return r / 255, g / 255, b / 255, a * opacity
+    elif string.startswith("rgb"):
+        r, g, b = tuple(
+            float(i.strip(" %")) / 100 if "%" in i else float(i) / 255
+            for i in string.strip(" rgb()").split(","))
+        return r, g, b, opacity
+
+    if len(string) in (4, 5):
+        string = "#" + "".join(2 * char for char in string[1:])
+    if len(string) == 9:
+        try:
+            opacity *= int(string[7:9], 16) / 255
+        except:
+            pass
+
+    try:
+        plain_color = tuple(
+            int(value, 16) / 255. for value in (
+                string[1:3], string[3:5], string[5:7]))
+    except ValueError:
+        # Unknown color, return black
+        return (0, 0, 0, 1)
+    else:
+        return plain_color + (opacity,)
+
+
 class SvgToPng(BrowserView):
     def convert(self):
         """
@@ -270,8 +315,9 @@ class SvgToPng(BrowserView):
         svg = self.request.get('svg')
         png_file = tempfile.TemporaryFile(mode='w+b')
 
+        cairosvg.surface.color = cairosvg_surface_color
         cairosvg.svg2png(bytestring=svg, write_to=png_file)
-        
+
         self.request.response.setHeader(
             'Content-Type', 'image/png')
         self.request.response.setHeader(

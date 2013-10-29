@@ -67,13 +67,6 @@ class NotationMap(object):
         ('ref-area', 'http://eurostat.linked-statistics.org/dic/geo#'),
     ]
 
-    def build_namespaces(self, template='namespaces.sparql'):
-        query = sparql_env.get_template(template).render(
-            dataset=self.cube.dataset
-        )
-        rows = self.cube._execute(query)
-        return [(row['namespace'], row['uri']) for row in rows]
-
     def __init__(self, cube):
         self.cube = cube
         self.NAMESPACES = self.build_namespaces()
@@ -85,6 +78,13 @@ class NotationMap(object):
             if code is None:
                 code = uri.split('/')[-1]
             self.NS_DIMENSIONS.update({code: uri})
+
+    def build_namespaces(self, template='namespaces.sparql'):
+        query = sparql_env.get_template(template).render(
+            dataset=self.cube.dataset
+        )
+        rows = self.cube._execute(query)
+        return [(row['namespace'], row['uri']) for row in rows]
 
     def update(self):
         t0 = time.time()
