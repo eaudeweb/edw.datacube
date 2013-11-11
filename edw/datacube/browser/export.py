@@ -171,7 +171,8 @@ class ExportCSV(BrowserView):
             self.request.response.setHeader(
                 'Content-Disposition',
                 'attachment; filename="%s.csv"' % self.context.getId())
-
+        if not self.request.form.get('chart_data'):
+            return
         chart_data = json.loads(self.request.form.pop('chart_data'))
 
         chart_type = self.request.form.pop('chart_type')
