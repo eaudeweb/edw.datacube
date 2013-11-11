@@ -2,16 +2,17 @@ PREFIX qb: <http://purl.org/linked-data/cube#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
-SELECT DISTINCT ?dimension ?notation ?dimension_class ?label ?comment ?group_notation WHERE {
+SELECT DISTINCT ?dimension ?notation ?dimension_class ?dimension_type ?label ?comment ?group_notation WHERE {
   {{ dataset|uri_n3 }} qb:structure ?structure .
   ?structure qb:component ?componentSpec .
-  ?componentSpec ?type ?dimension .
-  {?dimension a ?dimension_class FILTER (
-    ?dimension_class = <http://purl.org/linked-data/cube#DimensionProperty> ||
-    ?dimension_class = <http://purl.org/linked-data/cube#AttributeProperty> ||
-    ?dimension_class = <http://purl.org/linked-data/cube#MeasureProperty> ||
-    ?dimension_class = <http://semantic.digital-agenda-data.eu/def/class/DimensionGroupProperty>
-  )}
+  ?componentSpec ?dimension_type ?dimension .
+
+  FILTER (
+    ?dimension_type = <http://purl.org/linked-data/cube#dimension> ||
+    ?dimension_type = <http://purl.org/linked-data/cube#attribute> ||
+    ?dimension_type = <http://purl.org/linked-data/cube#measure> ||
+    ?dimension_type = <http://semantic.digital-agenda-data.eu/def/property/dimension-group>
+  )
 
   OPTIONAL {
     ?dimension rdfs:label ?label

@@ -92,7 +92,7 @@ class NotationMap(object):
             dataset=self.cube.dataset
         )
         rows = self.cube._execute(query)
-        return [(row['namespace'], row['uri']) for row in rows]
+        return [(re.split('[#/]', row['dimension'])[-1], row['uri']) for row in rows]
 
     def update(self):
         t0 = time.time()
@@ -103,7 +103,8 @@ class NotationMap(object):
         by_notation = defaultdict(dict)
         by_uri = {}
         for row in self.cube._execute(query):
-            by_notation[row['namespace']][row['notation'].lower()] = row
+            namespace = re.split('[#/]', row['dimension'])[-1]
+            by_notation[namespace][row['notation'].lower()] = row
             by_uri[row['uri']] = row
         logger.info('notation cache loaded, %.2f seconds', time.time() - t0)
         return {
@@ -127,14 +128,14 @@ class NotationMap(object):
 
     def lookup_notation(self, namespace, notation):
         data = self.get()
-        by_notation = data['by_notation']
         notation = notation.lower()
-        ns = by_notation.get(namespace)
+        ns = data['by_notation'].get(namespace)
         if ns is None:
-            raise RuntimeError("Unknown namespace %r", namespace)
+        #    raise RuntimeError("Unknown namespace %r for notation %r"%(namespace, notation))
+            ns = data['by_notation'][namespace]={}
         rv = ns.get(notation)
         if rv is None:
-            if namespace in ['unit-measure', 'breakdown', 'indicator']:
+            if namespace not in ['ref-area']:
                 uri = dict(self.CODELISTS)[namespace] + notation,
                 rv = self._add_item(data, uri, namespace, notation)
             else:
@@ -147,22 +148,27 @@ class NotationMap(object):
 
     @staticmethod
     def _add_item(data, uri, namespace, notation):
-        logger.warn('patching missing notation %r', (namespace, notation))
+        logger.warn('patching namespace %r with missing notation %r for uri %r' %(namespace, notation, uri))
         row = {'uri': uri,
                'namespace': namespace,
                'notation': notation}
         data['by_uri'][uri] = row
+        if not data['by_notation'].get(namespace):
+            data['by_notation'][namespace] = {}
         data['by_notation'][namespace][notation] = row
         return row
 
-    def touch_uri(self, uri):
+    def touch_uri(self, uri, dimension):
         data = self.get()
         if uri not in data['by_uri']:
-            for namespace, prefix in self.CODELISTS:
-                if uri.startswith(prefix):
-                    notation = uri[len(prefix):]
-                    self._add_item(data, uri, namespace, notation.lower())
-                    break
+            prefix = dict(self.CODELISTS)[dimension]
+            if not prefix:
+                prefix = '/'.join(re.split('[#/]', uri)[:-1]) + '/'
+            if uri.startswith(prefix):
+                if uri[len(prefix):].startswith('/') or uri[len(prefix):].startswith('#'):
+                    prefix = prefix + uri[len(prefix)]
+                notation = uri[len(prefix):]
+                self._add_item(data, uri, dimension, notation.lower())
             else:
                 logger.warn('new unknown uri %r', uri)
 
@@ -264,12 +270,12 @@ class Cube(object):
         if not row['label']:
             row['label'] = row['notation']
         types = dict([
-            ('http://purl.org/linked-data/cube#DimensionProperty', 'dimension'),
-            ('http://purl.org/linked-data/cube#AttributeProperty', 'attribute'),
-            ('http://semantic.digital-agenda-data.eu/def/class/DimensionGroupProperty', 'dimension group'),
-            ('http://purl.org/linked-data/cube#MeasureProperty', 'measure'),
+            ('http://purl.org/linked-data/cube#dimension', 'dimension'),
+            ('http://purl.org/linked-data/cube#attribute', 'attribute'),
+            ('http://semantic.digital-agenda-data.eu/def/property/dimension-group', 'dimension group'),
+            ('http://purl.org/linked-data/cube#measure', 'measure'),
         ])
-        row['type_label'] = types.get(row['dimension_class'], 'dimension')
+        row['type_label'] = types.get(row['dimension_type'], 'dimension')
 
     def get_dimensions(self, flat=False):
         query = sparql_env.get_template('dimensions.sparql').render(**{
@@ -286,7 +292,7 @@ class Cube(object):
                 rv[row['type_label']].append({
                     'label': row['label'],
                     'notation': row['notation'],
-                    'comment': row['comment'],
+                    'comment': row['comment'] or row['dimension'],
                 })
             return dict(rv)
 
@@ -329,7 +335,7 @@ class Cube(object):
         return self.get_dimension_options_n(dimension, filters, n_filters)
 
     def get_dimension_options_n(self, dimension, filters, n_filters):
-        uris = None
+        common_uris = None
         result_sets = []
         for extra_filters in n_filters:
             query = sparql_env.get_template('dimension_options.sparql').render(**{
@@ -340,7 +346,6 @@ class Cube(object):
                 'notations': self.notations,
             })
             result_sets.append(list(self._execute(query)))
-
         interval_types = set(item['interval_type']
                              for res in result_sets for item in res)
 
@@ -355,22 +360,21 @@ class Cube(object):
 
         for res in result_sets:
             res = options(res)
-            if uris is None:
-                uris = res
+            if common_uris is None:
+                common_uris = res
             else:
-                uris = uris & res
-
-        labels = self.get_labels(uris)
-        rv = [labels.get(uri, self.get_other_labels(uri)) for uri in uris]
+                common_uris = common_uris & res
+        labels = self.get_labels(common_uris, dimension)
+        rv = [labels.get(uri, self.get_other_labels(uri)) for uri in common_uris]
         rv.sort(key=lambda item: int(item.pop('order') or '0'))
         return rv
 
-    def get_labels(self, uri_list):
+    def get_labels(self, uri_list, dimension=None):
         if len(uri_list) < 1:
             return {}
         tmpl = sparql_env.get_template('labels.sparql')
         for uri in uri_list:
-            self.notations.touch_uri(uri)
+            self.notations.touch_uri(uri, dimension)
         query = tmpl.render(**{
             'uri_list': uri_list,
         })
