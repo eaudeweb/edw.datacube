@@ -36,7 +36,11 @@ scoreboard.datacube.edit = {
         datasetsBox.empty();
         jQuery.each(datasetsJSON, function(i, o){
             var label = jQuery('<label>');
-            label.text(o['title']);
+            if (o['title']) {
+                label.text(o['title']);
+            } else {
+                label.text(o['uri']);
+            }
             var field = jQuery('<input type="radio" name="dataset-entry">');
             field.val(o['uri']);
             if(o['uri'] == self.dataset.val()){

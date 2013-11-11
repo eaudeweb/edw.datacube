@@ -20,8 +20,12 @@ scoreboard.datacube.view = {
         });
     },
     replaceURLWithHTMLLinks: function(text) {
-        var exp = /(\b(https?|ftp|file):\/\/[\-A-Z0-9+&@#\/%?=~_|!:,.;]*[\-A-Z0-9+&@#\/%=~_|])/ig;
-        return text.replace(exp,"<a href='$1'>$1</a>");
+        if ( text ) {
+            var exp = /(\b(https?|ftp|file):\/\/[\-A-Z0-9+&@#\/%?=~_|!:,.;]*[\-A-Z0-9+&@#\/%=~_|])/ig;
+            return text.replace(exp,"<a href='$1'>$1</a>");
+        } else {
+            return '';
+        }
     },
     getDatasetDimensions: function(){
         var self = this;
@@ -46,15 +50,18 @@ scoreboard.datacube.view = {
     renderDatasetDimensions: function(data){
         var self = this;
         var target = null;
+        var tb_dimensions = jQuery('#dataset-dimensions tbody').empty();
+        var tb_attributes = jQuery('#dataset-attributes tbody').empty();
+        var tb_measures = jQuery('#dataset-measures tbody').empty();
         jQuery.each(data, function(type, entries){
-            if(type == 'dimension' || type == 'group_dimension'){
-                target = jQuery('#dataset-dimensions tbody').empty();
+            if(type == 'dimension' || type == 'dimension group'){
+                target = tb_dimensions;
             }
             if(type == 'attribute'){
-                target = jQuery('#dataset-attributes tbody').empty();
+                target = tb_attributes;
             }
             if(type == 'measure'){
-                target = jQuery('#dataset-measures tbody').empty();
+                target = tb_measures;
             }
             jQuery.each(entries, function(i, o){
                 self.renderData(target, o);

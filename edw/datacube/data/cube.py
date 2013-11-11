@@ -7,6 +7,8 @@ from collections import defaultdict
 import threading
 import jinja2
 import sparql
+import datetime
+import re
 
 from decimal import Decimal
 
@@ -51,7 +53,8 @@ data_cache = DataCache()
 class NotationMap(object):
 
     # overwritten in __init__
-    NAMESPACES = [
+    # this dictionary contains for each dimension values in its codelist
+    CODELISTS = [
         ('breakdown', 'http://semantic.digital-agenda-data.eu/'
                       'codelist/breakdown/'),
         ('indicator', 'http://semantic.digital-agenda-data.eu/'
@@ -66,20 +69,25 @@ class NotationMap(object):
                          'codelist/unit-measure/'),
         ('ref-area', 'http://eurostat.linked-statistics.org/dic/geo#'),
     ]
+    
+    # overwritten in __init__
+    MEASURE = 'http://purl.org/linked-data/sdmx/2009/measure#obsValue'
 
     def __init__(self, cube):
         self.cube = cube
-        self.NAMESPACES = self.build_namespaces()
-        self.NS_DIMENSIONS = {}
+        self.CODELISTS = self.build_codelists()
+        self.DIMENSIONS = {}
 
         for item in self.cube.get_dimensions(flat=True):
             code = item['notation']
             uri = item['dimension']
             if code is None:
-                code = uri.split('/')[-1]
-            self.NS_DIMENSIONS.update({code: uri})
+                code = re.split('[#/]', uri)[-1]
+            self.DIMENSIONS.update({code: uri})
+            if item['type_label'] == 'measure':
+                MEASURE = item['dimension']
 
-    def build_namespaces(self, template='namespaces.sparql'):
+    def build_codelists(self, template='codelists.sparql'):
         query = sparql_env.get_template(template).render(
             dataset=self.cube.dataset
         )
@@ -109,24 +117,13 @@ class NotationMap(object):
 
     def lookup_dimension_uri(self, dimension_code):
         return {
-            'uri': dict(self.NS_DIMENSIONS).get(dimension_code),
+            'uri': dict(self.DIMENSIONS).get(dimension_code),
             'namespace': dimension_code,
             'notation': None
         }
 
     def lookup_measure_uri(self):
-        try:
-            measure_key = [
-                key for key in self.NS_DIMENSIONS.keys()
-                if key.startswith('measure')
-            ][0]
-            return {
-                'uri': self.NS_DIMENSIONS[measure_key],
-                'namespace': measure_key.replace('measure#', ''),
-                'notation': None
-            }
-        except IndexError:
-            return None
+        return self.MEASURE
 
     def lookup_notation(self, namespace, notation):
         data = self.get()
@@ -138,7 +135,7 @@ class NotationMap(object):
         rv = ns.get(notation)
         if rv is None:
             if namespace in ['unit-measure', 'breakdown', 'indicator']:
-                uri = dict(self.NAMESPACES)[namespace] + notation,
+                uri = dict(self.CODELISTS)[namespace] + notation,
                 rv = self._add_item(data, uri, namespace, notation)
             else:
                 logger.warn('lookup failure %r', (namespace, notation))
@@ -161,7 +158,7 @@ class NotationMap(object):
     def touch_uri(self, uri):
         data = self.get()
         if uri not in data['by_uri']:
-            for namespace, prefix in self.NAMESPACES:
+            for namespace, prefix in self.CODELISTS:
                 if uri.startswith(prefix):
                     notation = uri[len(prefix):]
                     self._add_item(data, uri, namespace, notation.lower())
@@ -175,7 +172,8 @@ class Cube(object):
     def __init__(self, endpoint, dataset):
         self.endpoint = endpoint
         self.dataset = dataset
-        self.notations = NotationMap(self)
+        if dataset:
+            self.notations = NotationMap(self)
 
     def _execute(self, query, as_dict=True):
         t0 = time.time()
@@ -260,13 +258,28 @@ class Cube(object):
             rv = [{'label': value, 'short_label': None}]
         return rv
 
+    def fix_notations(self, row):
+        if not row['notation']:
+            row['notation'] = re.split('[#/]', row['dimension'])[-1]
+        if not row['label']:
+            row['label'] = row['notation']
+        types = dict([
+            ('http://purl.org/linked-data/cube#DimensionProperty', 'dimension'),
+            ('http://purl.org/linked-data/cube#AttributeProperty', 'attribute'),
+            ('http://semantic.digital-agenda-data.eu/def/class/DimensionGroupProperty', 'dimension group'),
+            ('http://purl.org/linked-data/cube#MeasureProperty', 'measure'),
+        ])
+        row['type_label'] = types.get(row['dimension_class'], 'dimension')
+
     def get_dimensions(self, flat=False):
         query = sparql_env.get_template('dimensions.sparql').render(**{
             'dataset': self.dataset,
         })
-        result = self._execute(query)
+        result = list(self._execute(query))
+        for row in result:
+            self.fix_notations(row)
         if flat:
-            return list(result)
+            return result
         else:
             rv = defaultdict(list)
             for row in result:
@@ -362,7 +375,6 @@ class Cube(object):
             'uri_list': uri_list,
         })
         return {row['uri']: row for row in self._execute(query)}
-
     def get_dimension_option_metadata_list(self, dimension, uri_list):
         tmpl = sparql_env.get_template('dimension_option_metadata.sparql')
         query = tmpl.render(**{
@@ -571,7 +583,10 @@ class Cube(object):
 
     def get_revision(self):
         query = sparql_env.get_template('last_modified.sparql').render()
-        timestamp = unicode(next(self._execute(query))['modified'])
+        try:
+            timestamp = unicode(next(self._execute(query)).get('modified'))
+        except StopIteration:
+            timestamp = unicode(datetime.date.today().strftime("%Y-%m-%d %H:%M:%S"))
         data_cache.ping(timestamp)
         return timestamp
 

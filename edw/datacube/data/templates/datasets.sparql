@@ -1,8 +1,8 @@
 PREFIX dc: <http://purl.org/dc/terms/>
 PREFIX qb: <http://purl.org/linked-data/cube#>
-SELECT DISTINCT ?uri, ?title WHERE {
+SELECT DISTINCT ?uri ?title WHERE {
   ?uri
-    a qb:DataSet ;
-    dc:title ?title .
+    a qb:DataSet .
+    OPTIONAL {?uri dc:title ?title} .
 }
 LIMIT 1000

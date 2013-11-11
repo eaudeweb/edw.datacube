@@ -5,9 +5,9 @@ PREFIX sdmx-measure: <http://purl.org/linked-data/sdmx/2009/measure#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 PREFIX time: <http://www.w3.org/2006/time#>
 SELECT DISTINCT {% for f in columns %} {%- set n = loop.index -%}
-                ?col{{n}}, {% endfor -%} ?value
+                ?col{{n}} {% endfor -%} ?value
 WHERE {
-  {%- set obs_uri = notations.lookup_measure_uri()['uri'] %}
+  {%- set obs_uri = notations.lookup_measure_uri() %}
 
   ?observation
     a qb:Observation ;

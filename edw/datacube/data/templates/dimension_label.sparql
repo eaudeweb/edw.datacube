@@ -2,7 +2,7 @@ PREFIX qb: <http://purl.org/linked-data/cube#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 PREFIX time: <http://www.w3.org/2006/time#>
-SELECT DISTINCT ?label, ?short_label WHERE {
+SELECT DISTINCT ?label ?short_label WHERE {
 
 {%- set option_uri = notations.lookup_notation(dimension, value)['uri'] %}
 

@@ -4,9 +4,9 @@ PREFIX qb: <http://purl.org/linked-data/cube#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 
-SELECT DISTINCT ?uri, ?notation, ?definition, ?label, ?short_label, ?note,
-                ?source_label, ?source_definition, ?source_notes, ?source_url,
-                ?groupName, ?parentOrder, ?innerOrder
+SELECT DISTINCT ?uri ?notation ?definition ?label ?short_label ?note
+                ?source_label ?source_definition ?source_notes ?source_url
+                ?groupName ?parentOrder ?innerOrder
 WHERE {
 
   OPTIONAL { ?uri skos:notation ?notation }

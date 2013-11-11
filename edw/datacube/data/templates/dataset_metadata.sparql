@@ -1,10 +1,17 @@
 PREFIX dc: <http://purl.org/dc/terms/>
 PREFIX qb: <http://purl.org/linked-data/cube#>
 SELECT DISTINCT * WHERE {
-  {{ dataset|uri_n3 }}
-    dc:title ?title ;
-    dc:description ?description ;
-	dc:identifier ?identifier .
-    OPTIONAL { {{ dataset|uri_n3 }} dc:license ?license}
+  OPTIONAL {
+    {{ dataset|uri_n3 }} dc:title ?title
+  }
+  OPTIONAL {
+    {{ dataset|uri_n3 }} dc:description ?description
+  }
+  OPTIONAL {
+	{{ dataset|uri_n3 }} dc:identifier ?identifier
+  }
+  OPTIONAL {
+    {{ dataset|uri_n3 }} dc:license ?license
+  }
 }
 LIMIT 1000

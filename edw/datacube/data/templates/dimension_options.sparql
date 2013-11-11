@@ -6,7 +6,7 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 PREFIX interval: <http://reference.data.gov.uk/def/intervals/>
 PREFIX time: <http://www.w3.org/2006/time#>
-SELECT DISTINCT ?uri, ?interval_type, ?parent_year WHERE {
+SELECT DISTINCT ?uri ?interval_type ?parent_year WHERE {
 
 {%- set variable = '?option'
     if dimension_code in group_dimensions

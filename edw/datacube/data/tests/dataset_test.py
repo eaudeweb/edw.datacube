@@ -34,27 +34,27 @@ def test_dataset_dimensions_metadata():
                            'dimension group', 'measure']
     assert notations('dimension') == ['indicator', 'breakdown', 'unit-measure',
                                       'ref-area', 'time-period']
-    assert notations('dimension group') == ['indicator-group',
-                                            'breakdown-group']
-    assert notations('attribute') == ['unit-measure', 'flag', 'note']
+    assert sorted(notations('dimension group')) == ['breakdown-group',
+                                            'indicator-group']
+    assert sorted(notations('attribute')) == ['flag', 'note', 'unit-measure']
     assert [d['label'] for d in res['measure']] == ['Observation']
 
 @sparql_test
 def test_dataset_dimensions_flat_list():
     cube = create_cube()
     res = cube.get_dimensions(flat=True)
-    assert [d['notation'] for d in res] == [
-        None,
-        'unit-measure',
-        'flag',
-        'note',
-        'indicator-group',
-        'indicator',
-        'breakdown-group',
+    assert sorted([d['notation'] for d in res]) == [
         'breakdown',
-        'unit-measure',
+        'breakdown-group',
+        'flag',
+        'indicator',
+        'indicator-group',
+        'note',
+        'obsValue',
         'ref-area',
         'time-period',
+        'unit-measure',
+        'unit-measure',
     ]
 
 @sparql_test
