@@ -608,7 +608,7 @@ class Cube(object):
             return result.read()
         return self._execute(query)
 
-    def dump_constructs(self, format='text/rdf+n3',
+    def dump_constructs(self, format='application/rdf+xml',
                         template='construct_codelists.sparql'):
         """
         Sends queries directly to the endpoint.

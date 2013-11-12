@@ -573,7 +573,7 @@ class AjaxDataView(BrowserView):
 
     def download_codelists(self):
         response = self.request.response
-        response.setHeader('Content-type', 'text/rdf+n3; charset=utf-8')
+        response.setHeader('Content-type', 'text/rdf+xml; charset=utf-8')
         filename = '%s-codelists.rdf' % self.context.getId()
         response.setHeader('Content-Disposition',
                            'attachment;filename=%s' % filename)
@@ -584,7 +584,7 @@ class AjaxDataView(BrowserView):
 
     def download_structure(self):
         response = self.request.response
-        response.setHeader('Content-type', 'text/rdf+n3; charset=utf-8')
+        response.setHeader('Content-type', 'text/rdf+xml; charset=utf-8')
         filename = '%s-structure.rdf' % self.context.getId()
         response.setHeader('Content-Disposition',
                            'attachment;filename=%s' % filename)
@@ -595,7 +595,7 @@ class AjaxDataView(BrowserView):
 
     def download_dataset_metadata(self):
         response = self.request.response
-        response.setHeader('Content-type', 'text/rdf+n3; charset=utf-8')
+        response.setHeader('Content-type', 'text/rdf+xml; charset=utf-8')
         filename = '%s-metadata.rdf' % self.context.getId()
         response.setHeader('Content-Disposition',
                            'attachment;filename=%s' % filename)
