@@ -91,9 +91,10 @@
     <h2 id="download">Download Data</h2>
     <strong>Formats suitable for human consumption</strong>
     <ul>
-      <li><a tal:attributes="href python:here.getField('dataset').getAccessor(here)()">HTML</a></li>
-      <li><a href="@@csv" rel="nofollow">CSV</a> <span>(~15Mb)</span></li>
-      <li><a href="@@tsv" rel="nofollow">TSV</a> <span>(~15Mb)</span></li>
+      <li><a tal:attributes="rel string:nofollow;href python:'../../download/' + here.getField('dataset').getAccessor(here)().split('/')[-1] + '.csv.zip'">CSV</a> <span>(~2 MB)</span></li>
+      <li><a tal:attributes="rel string:nofollow;href python:'../../download/' + here.getField('dataset').getAccessor(here)().split('/')[-1] + '.tsv.zip'">TSV</a> <span>(~2 MB)</span></li>
+      <li><a tal:attributes="rel string:nofollow;href python:'../../download/' + here.getField('dataset').getAccessor(here)().split('/')[-1] + '.ttl.zip'">N3/Turtle</a> <span>(~14 MB)</span></li>
+      <li><a tal:attributes="rel string:nofollow;href python:here.getField('dataset').getAccessor(here)()">HTML</a></li>
     </ul>
     <strong>Formats suitable for machine-to-machine communication</strong>
     <ul>
