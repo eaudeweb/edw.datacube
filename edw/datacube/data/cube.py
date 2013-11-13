@@ -364,21 +364,28 @@ class Cube(object):
                 common_uris = res
             else:
                 common_uris = common_uris & res
-        labels = self.get_labels(common_uris, dimension)
+        data = []
+        for uri in common_uris:
+            data.append((uri, dimension))
+        labels = self.get_labels(data)
         rv = [labels.get(uri, self.get_other_labels(uri)) for uri in common_uris]
         rv.sort(key=lambda item: int(item.pop('order') or '0'))
         return rv
 
-    def get_labels(self, uri_list, dimension=None):
-        if len(uri_list) < 1:
+    def get_labels(self, data):
+        if len(data) < 1:
             return {}
         tmpl = sparql_env.get_template('labels.sparql')
-        for uri in uri_list:
-            self.notations.touch_uri(uri, dimension)
+        uri_list = []
+        for item in data:
+            # item = (uri, dimension)
+            self.notations.touch_uri(item[0], item[1])
+            uri_list.append(item[0])
         query = tmpl.render(**{
             'uri_list': uri_list,
         })
         return {row['uri']: row for row in self._execute(query)}
+
     def get_dimension_option_metadata_list(self, dimension, uri_list):
         tmpl = sparql_env.get_template('dimension_option_metadata.sparql')
         query = tmpl.render(**{
@@ -425,22 +432,24 @@ class Cube(object):
         })
         result = list(self._execute(query, as_dict=False))
         def reducer(memo, item):
-            def uri_filter(uri):
-                if uri:
-                    return True if uri.startswith('http://') else False
-            return memo.union(set(filter(uri_filter, item[:-1])))
-        uris = reduce(reducer, result, set())
+            def uri_filter(x):
+                if x[0]:
+                    return True if x[0].startswith('http://') else False
+            x = [(uri, columns[i]['notation']) for i, uri in enumerate(item[:-1])]
+            return memo.union(set(filter(uri_filter, x)))
+
+        data = reduce(reducer, result, set())
         column_names = [item['notation'] for item in columns] + ['value']
-        return self._format_observations_result(result, column_names, uris)
+        return self._format_observations_result(result, column_names, data)
 
-    def _format_observations_result(self, result, columns, uris):
-        labels = self.get_labels(uris)
-
+    def _format_observations_result(self, result, columns, data):
+        labels = self.get_labels(data)
         for row in result:
             result_row = []
             value = row.pop(-1)
             for item in row:
-                if item not in uris:
+                #if item not in uris:
+                if item not in map(lambda x: x[0], data):
                     result_row.append(item)
                 else:
                     notation = labels.get(item, {}).get('notation', None)
@@ -485,13 +494,15 @@ class Cube(object):
         })
         result = list(self._execute(query, as_dict=False))
         def reducer(memo, item):
-            def uri_filter(uri):
-                if uri:
-                    return True if uri.startswith('http://') else False
-            return memo.union(set(filter(uri_filter, item[:-1])))
-        uris = reduce(reducer, result, set())
+            def uri_filter(x):
+                if x[0]:
+                    return True if x[0].startswith('http://') else False
+            x = [(uri, columns[i]['notation']) for i, uri in enumerate(item[:-1])]
+            return memo.union(set(filter(uri_filter, x)))
+
+        data = reduce(reducer, result, set())
         column_names = [item['notation'] for item in columns] + ['value']
-        return self._format_observations_result(result, column_names, uris)
+        return self._format_observations_result(result, column_names, data)
 
     def get_data_xy(self, join_by, filters, x_filters, y_filters):
         n_filters = [x_filters, y_filters]
@@ -546,17 +557,18 @@ class Cube(object):
 
         # EXTRACT UNIQUE URIS FROM DATA
         by_category = defaultdict(list)
-        uri_set = set()
+        data = set()
         for obs_set in raw_data:
             for obs in obs_set:
                 if obs[join_by] in common:
                     by_category[obs[join_by]].append(obs)
                     for key, value in obs.items():
                         if isinstance(value, basestring) and value.startswith('http://'):
-                            uri_set.add(value)
+                            #import pytest;pytest.set_trace()
+                            data.add((value, key))
 
         # GET LABELS FOR URIS
-        labels = self.get_labels(uri_set)
+        labels = self.get_labels(data)
 
         filtered_data = []
         # EXTRACT COMMON ROWS

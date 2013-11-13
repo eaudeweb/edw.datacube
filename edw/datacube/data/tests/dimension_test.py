@@ -249,12 +249,12 @@ def test_get_indicator_source_metadata():
 def test_get_labels():
     import sparql
     cube = create_cube()
-    uri_list = ['http://reference.data.gov.uk/id/gregorian-year/2007',
-                'http://reference.data.gov.uk/id/gregorian-year/2009']
-    res = cube.get_labels(uri_list)
-    assert sorted(res.keys()) == uri_list
-    assert res[uri_list[1]]['notation'] == '2009'
-    assert res[uri_list[1]]['short_label'] == '2009'
+    data = [('http://reference.data.gov.uk/id/gregorian-year/2007', 'time-period'),
+                ('http://reference.data.gov.uk/id/gregorian-year/2009', 'time-period')]
+    res = cube.get_labels(data)
+    assert sorted(res.keys()) == map(lambda item: item[0], data)
+    assert res[data[1][0]]['notation'] == '2009'
+    assert res[data[1][0]]['short_label'] == '2009'
 
 
 @sparql_test
