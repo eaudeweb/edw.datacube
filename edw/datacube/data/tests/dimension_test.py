@@ -143,7 +143,7 @@ def test_get_altlabel_for_group_dimension():
     label = [it['short_label'] for it in items
                 if it['notation'] == 'byage3classes'
             ][0]
-    assert u'Age (3 classes)' == label
+    assert u'Age (3 groups)' == label
 
 
 @sparql_test
@@ -204,7 +204,7 @@ def test_get_breakdown_metadata():
     res = cube.get_dimension_option_metadata('breakdown', 'IND_TOTAL')
     assert res['label'] == "All Individuals (aged 16-74)"
     assert res['short_label'] == "All individuals"
-    assert 'definition' not in res
+    assert res['definition'] == "Income in the fourth quartile means income among the 25% highest incomes observed"
     assert 'note' not in res
     assert 'source_label' not in res
 
