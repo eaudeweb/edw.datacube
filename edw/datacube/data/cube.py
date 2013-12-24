@@ -346,13 +346,13 @@ class Cube(object):
                 'notations': self.notations,
             })
             result_sets.append(list(self._execute(query)))
-        interval_types = set(item['interval_type']
+        interval_types = set(item.get('interval_type')
                              for res in result_sets for item in res)
 
         if len(interval_types) > 1:
-            # normalize to years
+            # normalize to years when time-period is expressed as different intervals
             def options(res):
-                return set(item['parent_year'] or item['uri'] for item in res)
+                return set(item.get('parent_year') or item['uri'] for item in res)
 
         else:
             def options(res):
