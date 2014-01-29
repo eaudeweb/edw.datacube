@@ -9,6 +9,8 @@ import jinja2
 import sparql
 import datetime
 import re
+import base64
+import hashlib
 
 from decimal import Decimal
 
@@ -85,7 +87,7 @@ class NotationMap(object):
                 code = re.split('[#/]', uri)[-1]
             self.DIMENSIONS.update({code: uri})
             if item['type_label'] == 'measure':
-                MEASURE = item['dimension']
+                self.MEASURE = item['dimension']
 
     def build_codelists(self, template='codelists.sparql'):
         query = sparql_env.get_template(template).render(
@@ -104,7 +106,13 @@ class NotationMap(object):
         by_uri = {}
         for row in self.cube._execute(query):
             namespace = re.split('[#/]', row['dimension'])[-1]
-            by_notation[namespace][row['notation'].lower()] = row
+            notation = row['notation'].lower()
+            if notation in by_notation[namespace]:
+                hasher = hashlib.sha1(row['uri'])
+                # if notation is not unique, add a sha1 string and hope for the best
+                notation = notation + '_' + base64.urlsafe_b64encode(hasher.digest()[0:10]).replace("=","")
+                logger.info('fixed notation ' + notation)
+            by_notation[namespace][notation] = row
             by_uri[row['uri']] = row
         logger.info('notation cache loaded, %.2f seconds', time.time() - t0)
         return {
