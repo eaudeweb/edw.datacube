@@ -4,6 +4,10 @@
   xmlns:browser="http://namespaces.zope.org/browser"
   i18n_domain="edw">
 
+  <include package="archetypes.schemaextender" />
+
+  <adapter factory=".datacube_modifier.DataCubeModifier" />
+
   <class class=".datacube.DataCube">
     <require
       permission="zope2.View"
