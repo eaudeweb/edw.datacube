@@ -10,6 +10,8 @@ DEFAULT_SPARQL_ENDPOINT = u"http://virtuoso.scoreboard.edw.ro/sparql"
 
 DEFAULT_USER_SPARQL_ENDPOINT = u"http://digital-agenda-data.eu/data/sparql"
 
+DEFAULT_CR_URL = u"http://digital-agenda-data.eu/data"
+
 FIND_COUNTRIES_QUERY = \
 u"""
 # This is a sample SPARQL query that returns the first 100 countries

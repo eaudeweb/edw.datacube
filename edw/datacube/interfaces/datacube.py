@@ -46,6 +46,13 @@ class IDataCubeSettings(Interface):
             default=defaults.DEFAULT_USER_SPARQL_ENDPOINT
     )
 
+    default_cr_url = schema.TextLine(
+            title=_(u"DEFAULT_CR_URL"),
+            description=_(u"Default Content Registry URL"),
+            required=True,
+            default=defaults.DEFAULT_CR_URL
+    )
+
     find_countries_query = schema.Text(
             title=_(u"Find countries url query"),
             description=_(u"URL query used for the indicators Find countries url."),
