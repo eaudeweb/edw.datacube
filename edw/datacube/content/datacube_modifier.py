@@ -18,6 +18,7 @@ class DataCubeModifier(object):
     def fiddle(self, schema):
         cubeSettings = queryUtility(
                 IRegistry).forInterface(IDataCubeSettings, False)
-        endpoint = getattr(cubeSettings, "default_sparql_endpoint",
-                defaults.DEFAULT_SPARQL_ENDPOINT)
+        endpoint = getattr(cubeSettings, "default_sparql_endpoint")
+        if not endpoint:
+            endpoint = defaults.DEFAULT_SPARQL_ENDPOINT
         schema["endpoint"].default = endpoint
