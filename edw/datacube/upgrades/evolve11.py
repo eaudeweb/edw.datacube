@@ -32,23 +32,23 @@ def evolve(context):
 
     for brain in brains:
         obj = brain.getObject()
-        board.invokeFactory('PloneboardForum', obj.id)
 
-        forum = board[obj.id]
-        forum.setTitle(obj.Title())
+        if wf.getInfoFor(obj, 'review_state') == 'published':
+            board.invokeFactory('PloneboardForum', id=obj.id, title=obj.Title())
 
-        wf.doActionFor(forum, 'make_moderated')
+            forum = board[obj.id]
+            wf.doActionFor(forum, 'make_moderated')
 
-        forum.reindexObject()
+            forum.reindexObject()
 
-        logger.info('Created forum: %s', forum.title)
+            logger.info('Created forum: %s', forum.title)
 
-        count += 1
-        total = len(brains)
+            count += 1
+            total = len(brains)
 
-        if count % 100 == 0:
-            logger.info('INFO: Subtransaction committed to zodb (%s/%s)',
-                        count, total)
-            transaction.commit()
+            if count % 100 == 0:
+                logger.info('INFO: Subtransaction committed to zodb (%s/%s)',
+                            count, total)
+                transaction.commit()
 
     logger.info('Done creating forums')

@@ -40,6 +40,11 @@
   <subscriber handler=".events.handle_dataset_added"
     for="edw.datacube.interfaces.datacube.IDataCube
          Products.Archetypes.interfaces.IObjectInitializedEvent"
+   />
+
+   <subscriber handler=".events.handle_content_state_changed"
+    for="edw.datacube.interfaces.datacube.IDataCube
+         Products.CMFCore.interfaces.IActionSucceededEvent"
     />
 
 </configure>
