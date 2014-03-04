@@ -37,14 +37,8 @@
 
   <!-- -*- extra stuff goes here -*- -->
 
-  <subscriber handler=".events.handle_dataset_added"
+  <subscriber handler=".events.handle_content_state_changed"
     for="edw.datacube.interfaces.datacube.IDataCube
-         Products.Archetypes.interfaces.IObjectInitializedEvent"
-   />
-
-   <subscriber handler=".events.handle_content_state_changed"
-    for="edw.datacube.interfaces.datacube.IDataCube
-         Products.CMFCore.interfaces.IActionSucceededEvent"
-    />
+         Products.CMFCore.interfaces.IActionSucceededEvent" />
 
 </configure>
