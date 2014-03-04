@@ -30,6 +30,11 @@
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
 
+  <genericsetup:importStep
+    name="edw-datacube-various"
+    title="Edw Datacube Various" description="Various setup for edw.datacube"
+    handler="edw.datacube.setuphandlers.importVarious" />
+
   <!-- -*- extra stuff goes here -*- -->
 
   <subscriber handler=".events.handle_dataset_added"
