@@ -18,15 +18,29 @@ def handle_dataset_added(obj, event):
 
 def handle_content_state_changed(obj, event):
     """Add forum for published DataCube objects
+    Make moderated forum when DataCube is published, otherwise private
     """
     _marker = object()
-    if event.workflow.getInfoFor(obj, 'review_state', _marker) == 'published':
-        site = getSite()
-        wf = getToolByName(site, 'portal_workflow')
+    site = getSite()
+    wf = getToolByName(site, 'portal_workflow')
+    board = site.get('board')
 
-        board = site.get('board')
-        if board:
-            board.invokeFactory('PloneboardForum', id=obj.id, title=obj.Title())
+    def do_wf(obj, wf_state):
+        wf.doActionFor(obj, wf_state)
+        forum.reindexObject()
+
+    if board:
+        wflow = event.workflow.getInfoFor(obj, 'review_state', _marker)
+        if wflow == 'published':
             forum = board.get(obj.id)
-            wf.doActionFor(forum, 'make_moderated')
-            forum.reindexObject()
+            if not forum:
+                board.invokeFactory('PloneboardForum', id=obj.id,
+                                    title=obj.Title())
+                forum = board.get(obj.id)
+            if wf.getInfoFor(forum, 'review_state') != 'moderated':
+                do_wf(forum, 'make_moderated')
+        else:
+            forum = board.get(obj.id)
+            if forum:
+                if wf.getInfoFor(forum, 'review_state') != 'private':
+                    do_wf(forum, 'make_private')
