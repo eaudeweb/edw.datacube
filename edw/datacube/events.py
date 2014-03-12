@@ -1,8 +1,10 @@
 """ Event handlers
 """
 from edw.datacube.utils import clone
+from Products.Archetypes.event import ObjectInitializedEvent
 from Products.CMFCore.utils import getToolByName
 from zope.component.hooks import getSite
+import zope.event
 
 def handle_dataset_added(obj, event):
     """Clone charts from the cloneFrom dataset to the new dataset
@@ -37,6 +39,7 @@ def handle_content_state_changed(obj, event):
                 board.invokeFactory('PloneboardForum', id=obj.id,
                                     title=obj.Title())
                 forum = board.get(obj.id)
+                zope.event.notify(ObjectInitializedEvent(forum))
             if wf.getInfoFor(forum, 'review_state') != 'moderated':
                 do_wf(forum, 'make_moderated')
         else:

@@ -1,7 +1,9 @@
 """ Various setup
 """
+from Products.Archetypes.event import ObjectInitializedEvent
 from Products.CMFCore.utils import getToolByName
 import logging
+import zope.event
 logger = logging.getLogger('edw.datacube')
 
 
@@ -25,4 +27,5 @@ def add_board(context):
     if not board:
         context.invokeFactory('Ploneboard', 'board')
         board = context.get('board')
+        zope.event.notify(ObjectInitializedEvent(board))
         logger.info('Created discussion board: %s', board.absolute_url())
