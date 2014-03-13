@@ -384,7 +384,21 @@ class Cube(object):
         query = tmpl.render(**{
             'uri_list': uri_list,
         })
-        return {row['uri']: row for row in self._execute(query)}
+        result = {row['uri']: row for row in self._execute(query)}
+        for uri in uri_list:
+            if uri not in result:
+                #add default labels for missing uris
+                notation = self.notations.lookup_uri(uri)['notation']
+                result[uri]={
+                    'uri': uri,
+                    'group_notation': None,
+                    'notation': notation,
+                    'short_label': notation,
+                    'label': notation,
+                    'order': None,
+                    'inner_order': 1
+                }
+        return result
 
     def get_dimension_option_metadata_list(self, dimension, uri_list):
         tmpl = sparql_env.get_template('dimension_option_metadata.sparql')
