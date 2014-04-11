@@ -31,4 +31,9 @@
 
   <!-- -*- extra stuff goes here -*- -->
 
+  <subscriber handler=".events.handle_dataset_added"
+    for="edw.datacube.interfaces.datacube.IDataCube
+         Products.Archetypes.interfaces.IObjectInitializedEvent"
+    />
+
 </configure>
