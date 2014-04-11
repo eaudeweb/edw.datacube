@@ -130,7 +130,7 @@ class AjaxDataView(BrowserView):
 
         rows = []
         for option in options.get('options', []):
-            if option.get('notation', '') not in eu:
+            if option.get('notation', '') not in eu and option.get('notation', '') not in ['NO', 'IS']:
                 continue
             rows.append(option)
         return self.jsonify({'options': rows})
@@ -233,9 +233,9 @@ class AjaxDataView(BrowserView):
             countryValue = self.country_value(key, datapoint_rows)
             if not mapping.get(key):
                 mapping[key] = {
-                    'min': {'value': countryValue, 'ref-area': countryName},
-                    'max': {'value': countryValue, 'ref-area': countryName},
-                    'med': {'value': countryValue, 'ref-area': countryName}
+                    'min': {'value': None, 'ref-area': countryName},
+                    'max': {'value': None, 'ref-area': countryName},
+                    'med': {'value': point['value'], 'ref-area': countryName}
             }
 
             # Update med
@@ -249,7 +249,7 @@ class AjaxDataView(BrowserView):
 
             # Update min
             oldValue = mapping[key]['min']['value']
-            newValue = min(point['value'], oldValue);
+            newValue = min(point['value'], oldValue or point['value']);
             if newValue != oldValue:
                 mapping[key]['min']['value'] = newValue
                 mapping[key]['min']['ref-area'] = point['ref-area']['notation']
@@ -290,7 +290,6 @@ class AjaxDataView(BrowserView):
             point['original'] = val
             point['eu'] = medVal
             #point['rank'] = rank
-
             if val <= medVal:
                 if minVal == medVal:
                     point['value'] = 0
