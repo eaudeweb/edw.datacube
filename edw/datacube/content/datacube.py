@@ -62,6 +62,18 @@ DataCubeSchema = folder.ATFolderSchema.copy() + atapi.Schema((
             label=_(u"Thumbnail"),
         )
     ),
+
+    atapi.TextField(
+        'cloneFrom',
+        languageIndependent=False,
+        vocabulary_factory=u'edw.datacube.vocabulary.AvailableDataCubes',
+        widget=atapi.SelectionWidget(
+            condition="here/isTemporary",
+            format=u'select',
+            label=_(u'Clone from'),
+            description='Copy the charts from this DataSet'
+            )
+        ),
 ))
 
 # Set storage on fields copied from ATFolderSchema, making sure
