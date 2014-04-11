@@ -15,4 +15,9 @@
       />
   </class>
 
+  <utility
+    factory=".vocabularies.DataCubeVocabulary"
+    name="edw.datacube.vocabulary.AvailableDataCubes"
+    />
+
 </configure>
