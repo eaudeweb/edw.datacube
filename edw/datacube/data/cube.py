@@ -486,6 +486,7 @@ class Cube(object):
         columns = self.get_columns()
 
         indicator_group = dict(filters)['indicator-group']
+        filters = [(key, item) for key, item in filters if key != 'indicator-group']
         whitelist = []
         for item in whitelist_items:
             mapped_item = {}
