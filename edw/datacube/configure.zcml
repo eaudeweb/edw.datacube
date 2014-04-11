@@ -36,7 +36,13 @@
     handler="edw.datacube.setuphandlers.importVarious" />
 
   <!-- -*- extra stuff goes here -*- -->
+  <!-- handler for clone charts -->
+  <subscriber handler=".events.handle_dataset_added"
+  for="edw.datacube.interfaces.datacube.IDataCube
+    Products.Archetypes.interfaces.IObjectInitializedEvent"
+  />
 
+  <!-- handler for discussion board -->
   <subscriber handler=".events.handle_content_state_changed"
     for="edw.datacube.interfaces.datacube.IDataCube
          Products.CMFCore.interfaces.IActionSucceededEvent" />
