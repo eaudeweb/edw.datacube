@@ -42,7 +42,7 @@ def test_get_all_country_options():
     cube = create_cube()
     items = cube.get_dimension_options('ref-area')
     codes = [y['notation'] for y in items]
-    assert len(codes) == 47
+    assert len(codes) >= 50
     assert 'DE' in codes
     assert 'ES' in codes
     assert 'BG' in codes
@@ -118,7 +118,7 @@ def test_get_available_year_options_for_indicator_group():
         ('indicator-group', 'mobile'),
     ])
     years = [y['notation'] for y in items]
-    assert len(years) == 7
+    assert len(years) >= 8
     assert '2012' in years
     assert '2002' not in years
 
@@ -182,7 +182,7 @@ def test_get_years_for_xyz_indicators():
         [('indicator', 'bb_ne')]
     )
     years = [i['notation'] for i in items]
-    assert len(years) == 17
+    assert len(years) >= 18
     assert '2007-12' in years
     assert '2012-06' in years
     assert '2012' not in years

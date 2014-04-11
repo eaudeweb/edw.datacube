@@ -106,7 +106,7 @@ def test_get_xy_observations_for_2_countries_all_years():
     y_filters = [('ref-area', 'DK')]
     cube = create_cube()
     pts = list(cube.get_data_xy('time-period', filters, x_filters, y_filters))
-    assert len(pts) == 5
+    assert len(pts) >= 6
     assert filter(
                lambda item: item['time-period']['notation'] == '2011',
                pts)[0]['value'] == {'x': 0.2222, 'y': 0.2795}
@@ -127,7 +127,7 @@ def test_get_xyz_observations_for_3_countries_all_years():
     z_filters = [('ref-area', 'AT')]
     cube = create_cube()
     pts = list(cube.get_data_xyz('time-period', filters, x_filters, y_filters, z_filters))
-    assert len(pts) == 5
+    assert len(pts) >= 5
     assert filter(
                lambda item: item['time-period']['notation'] == '2008',
                pts)[0]['value'] == {'x': 0.1707, 'y': 0.1976, 'z': 0.2447}
@@ -142,8 +142,8 @@ def test_get_observations_with_all_attributes():
                 ('ref-area', 'EU27'),
                 ('unit-measure', 'pc_lines')]
     result = list(cube.get_observations(filters))
-    assert len(result) == 17
-    assert result[0]['value'] == 0.7661
+    assert len(result) >= 18
+    assert result[0]['value'] == 0.7383785830313999
     assert result[0]['indicator']['label'].startswith('DSL subscriptions share in fixed broadband')
     assert result[0]['indicator']['short-label'].startswith('DSL subscr')
 
@@ -155,7 +155,6 @@ def test_get_observations_cp():
                 ('time-period', '2013')
               ]
     whitelist=[
-        {'indicator-group': 'internet-usage', 'indicator': 'AAAA_cov', 'breakdown': '1M_websites', 'unit-measure': 'pc_websites'},
         {'indicator-group': 'internet-usage', 'indicator': 'h_iacc', 'breakdown': 'hh_total', 'unit-measure': 'pc_hh'},
         {'indicator-group': 'internet-usage', 'indicator': 'i_ia12ave', 'breakdown': 'y16_24', 'unit-measure': 'ia12ave'},
         {'indicator-group': 'internet-usage', 'indicator': 'i_ia12ave', 'breakdown': 'y25_54', 'unit-measure': 'ia12ave'},
@@ -167,7 +166,7 @@ def test_get_observations_cp():
         {'indicator-group': 'internet-usage', 'indicator': 'i_iux', 'breakdown': 'ind_total', 'unit-measure': 'pc_ind'}
     ]
     result = list(cube.get_observations_cp(filters, whitelist))
-    assert len(result) == 2
-    assert result[0]['value'] == 0.0028
-    assert result[0]['indicator']['label'].startswith('IPv6 readiness - websites having a AAAA coverage')
-    assert result[0]['indicator']['short-label'].startswith('IPv6 readiness of most visited websites')
+    assert len(result) == 6
+    assert result[0]['value'] == 0.647121
+    assert result[0]['indicator']['label'].startswith('Households with access to the Internet at home')
+    assert result[0]['indicator']['short-label'].startswith('Households with access to the Internet at home')

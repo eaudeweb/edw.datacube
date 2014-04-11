@@ -11,6 +11,7 @@ SELECT DISTINCT ?uri {% if dimension_code == 'time-period' %} ?interval_type ?pa
 {%- set variable = '?option'
     if dimension_code in group_dimensions
     else '?uri' %}
+{%- set obs_uri = notations.lookup_measure_uri() %}
 
     ?observation
         qb:dataSet {{ dataset|uri_n3 }} ;
@@ -27,6 +28,7 @@ SELECT DISTINCT ?uri {% if dimension_code == 'time-period' %} ?interval_type ?pa
     {#?observation dad-prop:{{ dimension_code }} ?uri.#}
     {%- set dimension_uri = notations.lookup_dimension_uri(dimension_code)['uri'] %}
     ?observation {{ dimension_uri|uri_n3 }} ?uri.
+    ?observation {{ obs_uri|uri_n3 }} ?value .
 {% endif %}
 
 {% if dimension_code == 'time-period' %}
