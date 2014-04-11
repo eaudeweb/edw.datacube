@@ -13,6 +13,7 @@
   <!-- Include the sub-packages that use their own configure.zcml files. -->
   <include package=".browser" />
   <include package=".content" />
+  <include package=".upgrades" />
 
   <cmf:registerDirectory
      name="skins"
@@ -29,11 +30,15 @@
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
 
+  <genericsetup:importStep
+    name="edw-datacube-various"
+    title="Edw Datacube Various" description="Various setup for edw.datacube"
+    handler="edw.datacube.setuphandlers.importVarious" />
+
   <!-- -*- extra stuff goes here -*- -->
 
-  <subscriber handler=".events.handle_dataset_added"
+  <subscriber handler=".events.handle_content_state_changed"
     for="edw.datacube.interfaces.datacube.IDataCube
-         Products.Archetypes.interfaces.IObjectInitializedEvent"
-    />
+         Products.CMFCore.interfaces.IActionSucceededEvent" />
 
 </configure>
