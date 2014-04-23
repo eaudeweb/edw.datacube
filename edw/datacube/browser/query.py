@@ -188,7 +188,7 @@ class AjaxDataView(BrowserView):
         view = queryMultiAdapter((self.context, self.request),
                                  name=u'whitelist.json')
 
-        whitelist = view.whitelist if view else []
+        whitelist = view.contextualWhitelist() if view else []
         # Get datapoints
         countryName = self.request.form.pop('ref-area', '')
         filters = [('indicator-group', self.request.form['indicator-group'])]
@@ -340,7 +340,7 @@ class AjaxDataView(BrowserView):
 
         view = queryMultiAdapter((self.context, self.request),
                                  name=u'whitelist.json')
-        whitelist = view.whitelist if view else []
+        whitelist = view.contextualWhitelist() if view else []
 
         latestYear = self.request.form.pop('time-period',
                                            datetime.now().year - 1)
