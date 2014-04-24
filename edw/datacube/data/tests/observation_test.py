@@ -166,7 +166,7 @@ def test_get_observations_cp():
         {'indicator-group': 'internet-usage', 'indicator': 'i_iux', 'breakdown': 'ind_total', 'unit-measure': 'pc_ind'}
     ]
     result = list(cube.get_observations_cp(filters, whitelist))
-    assert len(result) == 6
+    assert len(result) == 9
     assert result[0]['value'] == 0.647121
     assert result[0]['indicator']['label'].startswith('Households with access to the Internet at home')
     assert result[0]['indicator']['short-label'].startswith('Households with access to the Internet at home')
