@@ -8,6 +8,7 @@ from datetime import datetime
 from zope.component import queryMultiAdapter
 from Products.Five.browser import BrowserView
 from eea.cache import cache as eeacache
+from DateTime import DateTime
 
 logger = logging.getLogger('edw.datacube')
 
@@ -23,6 +24,14 @@ def cacheKey(method, self, *args, **kwargs):
     """
     return (self.context.absolute_url(1), dict(self.request.form))
 
+def cacheKey_cp(method, self, *args, **kwargs):
+    """ Generate unique cache id for country profiles
+    """
+    view = queryMultiAdapter((self.context, self.request),
+                             name=u'whitelist.json')
+    timestamp = view.contextualWlTimestamp() if view else DateTime.ISO()
+
+    return (self.context.absolute_url(1), dict(self.request.form), timestamp)
 
 class AjaxDataView(BrowserView):
 
@@ -172,7 +181,7 @@ class AjaxDataView(BrowserView):
         rows = list(self.cube.get_observations(filters=filters))
         return self.jsonify({'datapoints': rows})
 
-    @eeacache(cacheKey, dependencies=['edw.datacube'])
+    @eeacache(cacheKey_cp, dependencies=['edw.datacube'])
     def datapoints_cp(self):
         """ Datapoints for country profile chart
         """
@@ -182,7 +191,7 @@ class AjaxDataView(BrowserView):
         else:
             return self.datapoints_cpc()
 
-    @eeacache(cacheKey, dependencies=['edw.datacube'])
+    @eeacache(cacheKey_cp, dependencies=['edw.datacube'])
     def datapoints_cpc(self):
         # Get whitelisted items
         view = queryMultiAdapter((self.context, self.request),
@@ -304,7 +313,7 @@ class AjaxDataView(BrowserView):
 
         return self.jsonify({'datapoints': rows})
 
-    @eeacache(cacheKey, dependencies=['edw.datacube'])
+    @eeacache(cacheKey_cp, dependencies=['edw.datacube'])
     def datapoints_cpt(self):
         """ Datapoints for country profile table
 
