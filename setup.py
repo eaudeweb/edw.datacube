@@ -40,7 +40,9 @@ setup(name=NAME,
       install_requires=[
           'setuptools',
           'xlutils',
-          'Products.Ploneboard'
+          'Products.Ploneboard',
+          'collective.recaptcha',
+          'Products.PloneboardNotify',
       ],
       extras_require={
           'test': [

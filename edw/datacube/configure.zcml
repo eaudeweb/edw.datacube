@@ -10,6 +10,18 @@
   <includeDependencies package="." />
   <five:registerPackage package="." initialize=".initialize" />
 
+  <include package="Products.Ploneboard" file="configure.zcml"
+          xmlns:zcml="http://namespaces.zope.org/zcml"
+          zcml:condition="installed Products.Ploneboard" />
+
+  <include package="collective.recaptcha" file="configure.zcml"
+          xmlns:zcml="http://namespaces.zope.org/zcml"
+          zcml:condition="installed collective.recaptcha" />
+
+  <include package="Products.PloneboardNotify" file="configure.zcml"
+          xmlns:zcml="http://namespaces.zope.org/zcml"
+          zcml:condition="installed Products.PloneboardNotify" />
+
   <!-- Include the sub-packages that use their own configure.zcml files. -->
   <include package=".browser" />
   <include package=".content" />
