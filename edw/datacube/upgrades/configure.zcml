@@ -1,0 +1,22 @@
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+           i18n_domain="edw.datacube">
+
+  <genericsetup:upgradeSteps
+    source="1.0"
+    destination="1.1"
+    profile="edw.datacube:default">
+
+    <genericsetup:upgradeStep
+      title="Import all steps from Products.Ploneboard profile"
+      handler=".evolve11.importVarious"
+      />
+
+    <genericsetup:upgradeStep
+      title="Add board and discussions for existing datacubes"
+      handler=".evolve11.evolve"
+      />
+ 
+  </genericsetup:upgradeSteps>
+
+</configure>
