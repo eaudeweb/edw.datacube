@@ -38,6 +38,8 @@ class ExportCSV(BrowserView):
                 encoded['name'] = point.get('name', '-')
                 for key in headers[1:]:
                     encoded[key] = unicode(point.get(key, '-')).encode('utf-8')
+                    if point.get('isNA', False):
+                        encoded['y'] = None
                 writer.writerow(encoded)
 
 
