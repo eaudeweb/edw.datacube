@@ -69,7 +69,7 @@ class NotationMap(object):
                          'codelist/unit-measure/'),
         ('ref-area', 'http://eurostat.linked-statistics.org/dic/geo#'),
     ]
-    
+
     # overwritten in __init__
     MEASURE = 'http://purl.org/linked-data/sdmx/2009/measure#obsValue'
 
@@ -313,9 +313,11 @@ class Cube(object):
         return self.get_dimension_options_n(dimension, filters, n_filters)
 
     def get_dimension_options_xy(self, dimension,
-                                 filters, x_filters, y_filters):
+                                 filters, x_filters, y_filters,
+                                 x_dataset, y_dataset):
         n_filters = [x_filters, y_filters]
-        return self.get_dimension_options_n(dimension, filters, n_filters)
+        n_datasets = [x_dataset, y_dataset] if x_dataset and y_dataset else []
+        return self.get_dimension_options_n(dimension, filters, n_filters, n_datasets)
 
     def get_other_labels(self, uri):
         if '#' in uri:
@@ -334,12 +336,16 @@ class Cube(object):
         n_filters = [x_filters, y_filters, z_filters]
         return self.get_dimension_options_n(dimension, filters, n_filters)
 
-    def get_dimension_options_n(self, dimension, filters, n_filters):
+    def get_dimension_options_n(self, dimension, filters, n_filters, n_datasets=[]):
         common_uris = None
         result_sets = []
-        for extra_filters in n_filters:
+        for idx, extra_filters in enumerate(n_filters):
+            if n_datasets:
+                dataset = n_datasets[idx]
+            else:
+                dataset = self.dataset
             query = sparql_env.get_template('dimension_options.sparql').render(**{
-                'dataset': self.dataset,
+                'dataset': dataset,
                 'dimension_code': dimension,
                 'filters': filters + extra_filters,
                 'group_dimensions': self.get_group_dimensions(),
