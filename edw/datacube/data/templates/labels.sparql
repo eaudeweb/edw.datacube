@@ -16,19 +16,13 @@ OPTIONAL {
     dad-prop:membership [
       dad-prop:member-of [
         skos:notation ?group_notation
-      ]
+      ];
+      dad-prop:order ?inner_order
     ] .
 }
 OPTIONAL {
   ?uri
     dad-prop:order ?order .
-}
-
-OPTIONAL {
-  ?uri
-    dad-prop:membership [
-      dad-prop:order ?inner_order
-    ]
 }
 
 FILTER (
