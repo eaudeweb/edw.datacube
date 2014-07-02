@@ -368,11 +368,15 @@ class Cube(object):
         for uri in common_uris:
             data.append((uri, dimension))
         labels = self.get_labels(data)
-        rv = [labels.get(uri, self.get_other_labels(uri)) for uri in common_uris]
-        rv.sort(key=lambda item: int(item.pop('order') or '0'))
-        return rv
+        # duplicates - e.g. when a breakdown is member of several breakdown groups
+        labels1 = self.get_labels_with_duplicates(data)
+        labels1.sort(key=lambda item: int(item.pop('order') or '0'))
+        return labels1
+        #rv = [labels.get(uri, self.get_other_labels(uri)) for uri in common_uris]
+        #rv.sort(key=lambda item: int(item.pop('order') or '0'))
+        #return rv
 
-    def get_labels(self, data):
+    def get_labels_with_duplicates(self, data):
         if len(data) < 1:
             return {}
         tmpl = sparql_env.get_template('labels.sparql')
@@ -384,12 +388,13 @@ class Cube(object):
         query = tmpl.render(**{
             'uri_list': uri_list,
         })
-        result = {row['uri']: row for row in self._execute(query)}
+        result = [row for row in self._execute(query)]
+        labels = {row['uri'] for row in result}
         for uri in uri_list:
-            if uri not in result:
+            if uri not in labels:
                 #add default labels for missing uris
                 notation = self.notations.lookup_uri(uri)['notation']
-                result[uri]={
+                result.append({
                     'uri': uri,
                     'group_notation': None,
                     'notation': notation,
@@ -397,8 +402,14 @@ class Cube(object):
                     'label': notation,
                     'order': None,
                     'inner_order': 1
-                }
+                })
         return result
+
+    def get_labels(self, data):
+        result = self.get_labels_with_duplicates(data)
+        labels = {row['uri']:row for row in result}
+        #uri_list = [item[0] for item in data]
+        return labels
 
     def get_dimension_option_metadata_list(self, dimension, uri_list):
         tmpl = sparql_env.get_template('dimension_option_metadata.sparql')
