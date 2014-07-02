@@ -93,7 +93,7 @@ def test_get_available_indicator_group_options():
     cube = create_cube()
     items = cube.get_dimension_options('indicator-group')
     codes = [y['notation'] for y in items]
-    assert len(codes) == 14
+    assert len(codes) >= 15
     assert 'internet-usage' in codes
     assert 'ebusiness' in codes
 
@@ -130,7 +130,7 @@ def test_get_indicators_in_group():
         ('indicator-group', 'ict-skills'),
     ])
     indicators = [i['notation'] for i in items]
-    assert len(indicators) == 11
+    assert len(indicators) >= 15
     assert 'i_skedu' in indicators
     assert 'P_IUSE' in indicators
     assert 'e_broad' not in indicators
@@ -201,10 +201,10 @@ def test_get_indicator_metadata():
 @sparql_test
 def test_get_breakdown_metadata():
     cube = create_cube()
-    res = cube.get_dimension_option_metadata('breakdown', 'IND_TOTAL')
-    assert res['label'] == "All Individuals (aged 16-74)"
-    assert res['short_label'] == "All individuals"
-    assert res['definition'] == "Income in the fourth quartile means income among the 25% highest incomes observed"
+    res = cube.get_dimension_option_metadata('breakdown', 'ent_sm_xfin')
+    assert res['label'] == "SMEs (10-249 persons employed), without financial sector"
+    assert res['short_label'] == "SMEs (10-249 persons employed)"
+    assert res['definition'] == "Since 2010: SM_C10_S951_XK, 2009: SM_C10_N82_XK, until 2008: sm_dfghiko"
     assert 'note' not in res
     assert 'source_label' not in res
 
@@ -213,14 +213,12 @@ def test_get_breakdown_metadata():
 def test_get_indicator_source_metadata():
     cube = create_cube()
     res = cube.get_dimension_option_metadata('indicator', 'i_iuse')
-    assert res['label'].startswith("Individuals who are regular ")
+    assert res['label'] == "Individuals who are regular internet users (at least once a week)"
     assert res['source_label'] == "Eurostat - ICT Households survey"
     assert res['source_definition'] == (
-        "Eurostat - Community survey on ICT "
-        "usage in Households and by Individuals")
+        "Eurostat - Community survey on ICT usage in Households and by Individuals")
     assert res['source_notes'] == (
-        u"Extraction from HH/Indiv comprehensive database "
-        u"(ACCESS) version\xa029 April 2013")
+        u"Extraction from HH/Indiv comprehensive database (ACCESS) version\xa0April 2014")
     assert res['source_url'] == (
         "http://epp.eurostat.ec.europa.eu/portal/page/"
         "portal/information_society/introduction")
@@ -262,6 +260,7 @@ def test_indicator_groups_are_sorted():
     cube = create_cube()
     res = cube.get_dimension_options(dimension='indicator-group')
     codes = [y['notation'] for y in res]
-    assert codes == ['broadband', 'mobile', 'bbquality', 'internet-usage',
-                     'internet-services', 'egovernment', 'ecommerce',
-                     'ebusiness', 'ict-skills', 'ict-edu', 'eHealth', 'research-and-development', 'ict-sector', 'back']
+    assert codes == ['telecom', 'broadband', 'bbquality', 'mobile',
+        'internet-usage', 'internet-services', 'egovernment', 'ecommerce',
+        'ebusiness', 'ict-skills', 'ict-edu', 'eHealth',
+        'research-and-development', 'ict-sector', 'back']
