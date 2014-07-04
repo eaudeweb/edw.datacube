@@ -370,7 +370,8 @@ class Cube(object):
         labels = self.get_labels(data)
         # duplicates - e.g. when a breakdown is member of several breakdown groups
         labels1 = self.get_labels_with_duplicates(data)
-        labels1.sort(key=lambda item: int(item.pop('order') or '0'))
+        if labels1:
+            labels1.sort(key=lambda item: int(item.pop('order') or '0'))
         return labels1
         #rv = [labels.get(uri, self.get_other_labels(uri)) for uri in common_uris]
         #rv.sort(key=lambda item: int(item.pop('order') or '0'))

@@ -1,4 +1,5 @@
 from .base import sparql_test, create_cube
+from edw.datacube.data.cube import Cube
 
 
 @sparql_test
@@ -264,3 +265,17 @@ def test_indicator_groups_are_sorted():
         'internet-usage', 'internet-services', 'egovernment', 'ecommerce',
         'ebusiness', 'ict-skills', 'ict-edu', 'eHealth',
         'research-and-development', 'ict-sector', 'back']
+
+@sparql_test
+def test_dimension_options_sort_bug():
+    #hardcoded endpoint and uri
+    cube = Cube('http://test-virtuoso.digital-agenda-data.eu/sparql',
+        'http://semantic.digital-agenda-data.eu/dataset/CNECT_Dashboard')
+    res = cube.get_dimension_options('breakdown', [
+        ('breakdown-group', 'byimplementation+status'),
+        ('indicator', 'DAE_MS_Actions'),
+        ('time-period', '2013'),
+        ('unit-measure', 'nbr_actions')
+    ])
+    #should not fail with AttributeError: 'dict' object has no attribute 'sort'
+    assert res == {}
