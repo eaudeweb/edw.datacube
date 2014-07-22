@@ -10,6 +10,7 @@ from Products.Five.browser import BrowserView
 from StringIO import StringIO
 from zope.component import queryMultiAdapter
 
+
 class ExportCSV(BrowserView):
     """ Export to CSV
     """
@@ -119,7 +120,7 @@ class ExportCSV(BrowserView):
 
 
     def write_metadata(self, response, metadata):
-        writer = csv.writer(response, dialect=csv.excel)
+        writer = UnicodeWriter(response, dialect=csv.excel)
         writer.writerow(['Chart title:', metadata.get('chart-title', '-')])
         writer.writerow(['Source dataset:', metadata.get('source-dataset', '-')])
         writer.writerow([
@@ -136,7 +137,7 @@ class ExportCSV(BrowserView):
 
 
     def write_annotations(self, response, annotations):
-        writer = csv.writer(response, dialect=csv.excel)
+        writer = UnicodeWriter(response, dialect=csv.excel)
         writer.writerow([annotations.get('section_title', '-')])
         for item in annotations.get('blocks', []):
             writer.writerow([
@@ -216,7 +217,7 @@ class ExportCSV(BrowserView):
 
             for rowi, row in enumerate(source_csv):
                 for coli, value in enumerate(row):
-                    sheet.write(rowi, coli, value)
+                    sheet.write(rowi, coli, value.decode('utf-8'))
             with tempfile.TemporaryFile(mode='w+b') as f_temp:
                 workbook.save(f_temp)
                 f_temp.flush()
@@ -333,3 +334,12 @@ class SvgToPng(BrowserView):
         self.request.response.write(png_file.read())
 
         return self.request.response
+
+
+class UnicodeWriter(object):
+    def __init__(self, *args, **kwargs):
+        self.writer = csv.writer(*args, **kwargs)
+
+    def writerow(self, row):
+        self.writer.writerow([
+            x.encode('utf-8') if isinstance(x, unicode) else x for x in row])
