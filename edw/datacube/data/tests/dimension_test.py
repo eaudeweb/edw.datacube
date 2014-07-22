@@ -279,3 +279,34 @@ def test_dimension_options_sort_bug():
     ])
     #should not fail with AttributeError: 'dict' object has no attribute 'sort'
     assert res == {}
+
+
+@sparql_test
+def test_dimension_options_in_multiple_groups_filtered():
+    #hardcoded endpoint and uri
+    cube = create_cube()
+    res = cube.get_dimension_options('breakdown', [
+        ('breakdown-group', 'byage3classes'),
+        ('indicator', 'i_iueduif'),
+        ('time-period', '2009'),
+        ('unit-measure', 'pc_ind')
+    ])
+    #should return three unique items filtered by breakdown-group
+    codes = [y['notation'] for y in res]
+    assert len(codes) == len(set(codes))
+    groups = set([y['group_notation'] for y in res])
+    assert len(groups) == 1
+    assert 'byage3classes' == groups.pop()
+
+@sparql_test
+def test_dimension_options_in_multiple_groups_unfiltered():
+    #hardcoded endpoint and uri
+    cube = create_cube()
+    res = cube.get_dimension_options('breakdown', [
+        ('indicator', 'i_iueduif')
+    ])
+    #should return Y16_24 twice, in different breakdown groups
+    breakdowns = [y for y in res if y['notation'] == 'Y16_24']
+    assert len(breakdowns) == 2
+    groups = set([y['group_notation'] for y in breakdowns])
+    assert groups == set(['byage3classes', 'byage6classes'])

@@ -77,6 +77,7 @@ class NotationMap(object):
         self.cube = cube
         self.CODELISTS = self.build_codelists()
         self.DIMENSIONS = {}
+        self.GROUPERS = {}
 
         for item in self.cube.get_dimensions(flat=True):
             code = item['notation']
@@ -84,6 +85,9 @@ class NotationMap(object):
             if code is None:
                 code = re.split('[#/]', uri)[-1]
             self.DIMENSIONS.update({code: uri})
+            group_notation = item['group_notation']
+            if group_notation:
+                self.GROUPERS[code] = group_notation
             if item['type_label'] == 'measure':
                 MEASURE = item['dimension']
 
@@ -367,11 +371,16 @@ class Cube(object):
         data = []
         for uri in common_uris:
             data.append((uri, dimension))
-        labels = self.get_labels(data)
         # duplicates - e.g. when a breakdown is member of several breakdown groups
         labels1 = self.get_labels_with_duplicates(data)
         if labels1:
             labels1.sort(key=lambda item: int(item.pop('order') or '0'))
+            # filter labels1 by group_notation if present in filters
+            if dimension in self.notations.GROUPERS.keys():
+                group_dimension = self.notations.GROUPERS[dimension]
+                filtered_group = next((value for dimension, value in filters if dimension == group_dimension), None)
+                if filtered_group:
+                    labels1 = [x for x in labels1 if x['group_notation'] == filtered_group]
         return labels1
         #rv = [labels.get(uri, self.get_other_labels(uri)) for uri in common_uris]
         #rv.sort(key=lambda item: int(item.pop('order') or '0'))
