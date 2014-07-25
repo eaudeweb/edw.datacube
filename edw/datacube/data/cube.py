@@ -314,7 +314,7 @@ class Cube(object):
 
     def get_dimension_options_xy(self, dimension,
                                  filters, x_filters, y_filters,
-                                 x_dataset, y_dataset):
+                                 x_dataset='', y_dataset=''):
         n_filters = [x_filters, y_filters]
         n_datasets = [x_dataset, y_dataset] if x_dataset and y_dataset else []
         return self.get_dimension_options_n(dimension, filters, n_filters, n_datasets)
