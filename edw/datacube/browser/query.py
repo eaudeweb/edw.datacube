@@ -9,7 +9,6 @@ from zope.component import queryMultiAdapter
 from Products.Five.browser import BrowserView
 from eea.cache import cache as eeacache
 from DateTime import DateTime
-from zope.component.hooks import getSite
 
 logger = logging.getLogger('edw.datacube')
 
@@ -88,18 +87,8 @@ class AjaxDataView(BrowserView):
         form = dict(self.request.form)
         form.pop('rev', None)
         dimension = form.pop('dimension')
-        x_cube_url = form.pop('x-__dataset', '')
-        y_cube_url = form.pop('y-__dataset', '')
-
-        datasets = ['', '']
-        site_url = getSite().absolute_url()
-
-        for idx, cube_url in enumerate([x_cube_url, y_cube_url]):
-            if not cube_url:
-                continue
-            relative_cube_url = cube_url[len(site_url) + 1:]
-            cube = self.context.restrictedTraverse(relative_cube_url, None)
-            datasets[idx] = cube.dataset
+        x_dataset = form.pop('x-__dataset', '')
+        y_dataset = form.pop('y-__dataset', '')
 
         (filters, x_filters, y_filters) = ([], [], [])
         for k, v in sorted(form.items()):
@@ -110,7 +99,6 @@ class AjaxDataView(BrowserView):
             else:
                 filters.append((k, v))
 
-        x_dataset, y_dataset = datasets
         options = self.cube.get_dimension_options_xy(dimension, filters,
                                                      x_filters, y_filters,
                                                      x_dataset, y_dataset)
