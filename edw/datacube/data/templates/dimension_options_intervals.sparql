@@ -1,0 +1,21 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
+PREFIX interval: <http://reference.data.gov.uk/def/intervals/>
+PREFIX time: <http://www.w3.org/2006/time#>
+SELECT DISTINCT ?uri ?interval_type ?parent_year  WHERE {
+    ?uri a ?interval_type .
+    ?interval_type rdfs:subClassOf interval:CalendarInterval .
+    ?uri time:intervalDuring ?parent_year .
+    ?parent_year a interval:Year .
+
+FILTER (
+{%- for uri in uri_list %}
+  ?uri = {{ uri|uri_n3 }}
+  {%- if not loop.last %} || {% endif %}
+{%- endfor %}
+)
+
+}
+LIMIT 1000
