@@ -310,3 +310,21 @@ def test_dimension_options_in_multiple_groups_unfiltered():
     assert len(breakdowns) == 2
     groups = set([y['group_notation'] for y in breakdowns])
     assert groups == set(['byage3classes', 'byage6classes'])
+
+@sparql_test
+def test_dimension_options_xy_none_common():
+    cube = create_cube()
+
+    res = cube.get_dimension_options_xy('time-period', [],
+         [('indicator', 'mbb_3gcov'),
+          ('breakdown', 'TOTAL_POP'),
+          ('unit-measure', 'pc_pop')
+         ],
+         [
+          ('indicator', 'TOTAL_POPHH'),
+          ('breakdown', 'mbb_ltecov'),
+          ('unit-measure', 'pc_hh_all')
+         ]
+    );
+    # should return no result
+    assert res == {}
