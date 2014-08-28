@@ -16,6 +16,6 @@ FILTER (
   {%- if not loop.last %} || {% endif %}
 {%- endfor %}
 )
-
 }
+
 LIMIT 1000

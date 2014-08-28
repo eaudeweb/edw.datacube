@@ -341,6 +341,12 @@ class Cube(object):
     def get_dimension_options_n(self, dimension, filters, n_filters):
         common_uris = None
         result_sets = []
+        intervals = []
+        merged_intervals = []
+        uri_list = None
+        distinct_types = False
+        comparator = None
+
         for extra_filters in n_filters:
             query = sparql_env.get_template('dimension_options.sparql').render(**{
                 'dataset': self.dataset,
@@ -350,27 +356,48 @@ class Cube(object):
                 'notations': self.notations,
             })
             result_sets.append(list(self._execute(query)))
-        interval_types = set(item.get('interval_type')
-                             for res in result_sets for item in res)
 
-        if len(interval_types) > 1:
-            # normalize to years when time-period is expressed as different intervals
-            def options(res):
-                return set(item.get('parent_year') or item['uri'] for item in res)
+        def options(res):
+            return set(item['uri'] for item in res)
 
-        else:
-            def options(res):
-                return set(item['uri'] for item in res)
+        def get_interval_type(item):
+            uri = item.get('uri')
+            return uri.split('/')[-2]
 
+        # Make an uri list containing all uris and a common uri list containing
+        # uris common for all result sets
         for res in result_sets:
+            if not comparator:
+                if res:
+                    comparator = get_interval_type(res[0])
+            else:
+                for elem in res:
+                    if comparator != get_interval_type(elem):
+                        distinct_types = True
             res = options(res)
-            if common_uris is None:
+            if uri_list is None:
+                uri_list = res
                 common_uris = res
             else:
+                uri_list = uri_list | res
                 common_uris = common_uris & res
+
+        if dimension == 'time-period' and distinct_types:
+            # Query the intervals
+            query_intervals = sparql_env.get_template('dimension_options_intervals.sparql').render(**{
+                'uri_list': uri_list,
+            })
+            intervals.append(list(self._execute(query_intervals)))
+
+            merged_intervals = [item for interval in intervals
+                                for item in interval]
+            common_uris = set(item.get('parent_year')
+                              for item in merged_intervals)
+
         data = []
         for uri in common_uris:
             data.append((uri, dimension))
+
         # duplicates - e.g. when a breakdown is member of several breakdown groups
         labels1 = self.get_labels_with_duplicates(data)
         if labels1:

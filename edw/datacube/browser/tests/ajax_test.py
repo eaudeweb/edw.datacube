@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from mock import Mock, MagicMock, call, patch
 import simplejson as json
 import pytest

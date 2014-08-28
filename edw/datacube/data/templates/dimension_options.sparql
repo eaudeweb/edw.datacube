@@ -6,7 +6,7 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 PREFIX interval: <http://reference.data.gov.uk/def/intervals/>
 PREFIX time: <http://www.w3.org/2006/time#>
-SELECT DISTINCT ?uri {% if dimension_code == 'time-period' %} ?interval_type ?parent_year {% endif %} WHERE {
+SELECT DISTINCT ?uri WHERE {
 
 {%- set variable = '?option'
     if dimension_code in group_dimensions
@@ -28,18 +28,6 @@ SELECT DISTINCT ?uri {% if dimension_code == 'time-period' %} ?interval_type ?pa
     {%- set dimension_uri = notations.lookup_dimension_uri(dimension_code)['uri'] %}
     ?observation {{ dimension_uri|uri_n3 }} ?uri.
     ?observation {{ obs_uri|uri_n3 }} ?value .
-{% endif %}
-
-{% if dimension_code == 'time-period' %}
-    OPTIONAL {
-        ?uri a ?interval_type .
-        ?interval_type rdfs:subClassOf interval:CalendarInterval .
-    }
-
-    OPTIONAL {
-        ?uri time:intervalDuring ?parent_year .
-        ?parent_year a interval:Year .
-    }
 {% endif %}
 
 }
