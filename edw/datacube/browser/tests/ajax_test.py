@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from mock import Mock, MagicMock, call, patch
 import simplejson as json
 import pytest
@@ -136,7 +137,6 @@ def test_dimension_xy_filters_passed_on_to_query(mock_cube):
         'y-__dataset': 'dataset2',
         'rev': '123',
     })
-    import pytest;pytest.set_trace()
     assert mock_cube.get_dimension_options_xy.mock_calls[0] == call(
         'ref-area',
         [('breakdown', 'blahblah'), ('time-period', '2002')],
