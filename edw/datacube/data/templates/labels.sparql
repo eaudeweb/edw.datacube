@@ -12,13 +12,9 @@ OPTIONAL {
     skos:altLabel ?short_label .
 }
 OPTIONAL {
-  ?uri
-    dad-prop:membership [
-      dad-prop:member-of [
-        skos:notation ?group_notation
-      ];
-      dad-prop:order ?inner_order
-    ] .
+  ?uri dad-prop:membership ?group .
+  ?group dad-prop:member-of [skos:notation ?group_notation].
+  OPTIONAL {?group dad-prop:order ?inner_order}
 }
 OPTIONAL {
   ?uri
