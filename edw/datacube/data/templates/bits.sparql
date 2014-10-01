@@ -1,5 +1,5 @@
 {% macro one_filter(observation, prefix, dimension_code, option_code) %}
-
+ {%- if option_code %}
   {%- set option_uri = notations.lookup_notation(dimension_code, option_code)['uri'] %}
   {%- set dimension_uri = notations.lookup_dimension_uri(dimension_code)['uri'] %}
 
@@ -28,6 +28,7 @@
     {{ dimension_uri|uri_n3 }} {{ option_uri|uri_n3 }} .
 
   {%- endif %}
+ {%- endif %}
 {%- endmacro %}
 
 {% macro one_attribute(observation, name, dimension_code) %}
