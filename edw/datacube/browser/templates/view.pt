@@ -20,8 +20,12 @@
         <a class="btn btn-mini btn-inverse" tal:condition="python: state != 'private'"
           tal:attributes="href string:${here/absolute_url}/content_status_modify?workflow_action=reject"><i class="icon-remove icon-white"></i> Unpublish</a>
       </tal:block>
-      <a class="btn btn-mini btn-primary" tal:attributes="href string:${here/absolute_url}/visualizations"><i class="icon-tasks icon-white"></i> Charts</a>
-      <a class="btn btn-mini" tal:attributes="href string:${here/absolute_url}/indicators"><i class="icon-tags"></i> Indicators</a>
+
+      <ul class="nav nav-tabs">
+        <li><a tal:attributes="href string:${here/absolute_url}/visualizations"><i class="icon-tasks"></i> Charts</a></li>
+        <li class="active"><a href="#"><i class="icon-file"></i> Dataset</a></li>
+        <li><a tal:attributes="href string:${here/absolute_url}/indicators"><i class="icon-tags"></i> Indicators</a></li>
+      </ul>
     </div>
     <br />
     <div tal:repeat="wid python:['endpoint', 'dataset']">
