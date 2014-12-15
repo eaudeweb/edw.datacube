@@ -22,6 +22,7 @@
       </tal:block>
 
       <ul class="nav nav-tabs">
+        <li><a tal:attributes="href string:${portal_url}/."><i class="icon-home"></i> Home</a></li>
         <li><a tal:attributes="href string:${here/absolute_url}/visualizations"><i class="icon-tasks"></i> Charts</a></li>
         <li class="active"><a href="#"><i class="icon-file"></i> Dataset</a></li>
         <li><a tal:attributes="href string:${here/absolute_url}/indicators"><i class="icon-tags"></i> Indicators</a></li>
