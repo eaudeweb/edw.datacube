@@ -14,14 +14,14 @@
     <div class="row">
       <div class="dataset-manage bootstrap col-md-12">
         <tal:block condition="canModify">
-          <a class="btn btn-mini btn-warning" tal:attributes="href string:${here/absolute_url}/edit"><i class="icon-edit icon-white"></i> Edit</a>
-          <a class="btn btn-mini btn-danger" tal:attributes="href string:${here/absolute_url}/delete_confirmation"><i class="icon-trash icon-white"></i> Delete</a>
+          <a class="btn btn-xs btn-warning" tal:attributes="href string:${here/absolute_url}/edit"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit</a>
+          <a class="btn btn-xs btn-danger" tal:attributes="href string:${here/absolute_url}/delete_confirmation"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</a>
         </tal:block>
         <tal:block condition="canReview">
-          <a class="btn btn-mini btn-success" tal:condition="python: state != 'published'"
-            tal:attributes="href string:${here/absolute_url}/content_status_modify?workflow_action=publish"><i class="icon-ok icon-white"></i> Publish</a>
-          <a class="btn btn-mini btn-inverse" tal:condition="python: state != 'private'"
-            tal:attributes="href string:${here/absolute_url}/content_status_modify?workflow_action=reject"><i class="icon-remove icon-white"></i> Unpublish</a>
+          <a class="btn btn-xs btn-success" tal:condition="python: state != 'published'"
+            tal:attributes="href string:${here/absolute_url}/content_status_modify?workflow_action=publish"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span> Publish</a>
+          <a class="btn btn-xs btn-inverse" tal:condition="python: state != 'private'"
+            tal:attributes="href string:${here/absolute_url}/content_status_modify?workflow_action=reject"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Unpublish</a>
         </tal:block>
 
         <ul class="nav nav-tabs">
