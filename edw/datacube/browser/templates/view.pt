@@ -34,7 +34,7 @@
     </div>
 
     <div class="row">
-      <div class="col-md-12">
+      <div class="col-md-9 col-sm-12 col-xs-12">
         <div tal:repeat="wid python:['endpoint', 'dataset']">
           <tal:block define="field python:here.getField(wid);
                             label python:field.widget.label;
