@@ -39,7 +39,7 @@ def test_dump_csv_fields_order(mock_cube):
 
 def test_dump_csv_response_content_type(mock_cube):
     dump = [ { 'indicator': 'i',
-               'breakdown': u'bâ',
+               'breakdown': u'b',
                'unit_measure': 'u-m',
                'time_period': 't',
                'ref_area': 'r',
@@ -133,13 +133,15 @@ def test_dimension_xy_filters_passed_on_to_query(mock_cube):
         'breakdown': 'blahblah',
         'x-indicator': 'i_iuse',
         'y-indicator': 'i_iu3g',
+        'x-__dataset': 'dataset1',
+        'y-__dataset': 'dataset2',
         'rev': '123',
     })
     assert mock_cube.get_dimension_options_xy.mock_calls[0] == call(
         'ref-area',
         [('breakdown', 'blahblah'), ('time-period', '2002')],
         [('indicator', 'i_iuse')],
-        [('indicator', 'i_iu3g')])
+        [('indicator', 'i_iu3g')], 'dataset1', 'dataset2')
     assert res == {'options': ['something']}
 
 

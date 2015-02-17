@@ -87,6 +87,9 @@ class AjaxDataView(BrowserView):
         form = dict(self.request.form)
         form.pop('rev', None)
         dimension = form.pop('dimension')
+        x_dataset = form.pop('x-__dataset', '')
+        y_dataset = form.pop('y-__dataset', '')
+
         (filters, x_filters, y_filters) = ([], [], [])
         for k, v in sorted(form.items()):
             if k.startswith('x-'):
@@ -95,8 +98,10 @@ class AjaxDataView(BrowserView):
                 y_filters.append((k[2:], v))
             else:
                 filters.append((k, v))
+
         options = self.cube.get_dimension_options_xy(dimension, filters,
-                                                     x_filters, y_filters)
+                                                     x_filters, y_filters,
+                                                     x_dataset, y_dataset)
         return self.jsonify({'options': options})
 
     @eeacache(cacheKey, dependencies=['edw.datacube'])
