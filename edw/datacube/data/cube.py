@@ -343,7 +343,6 @@ class Cube(object):
     def get_dimension_options_n(self, dimension, filters, n_filters, n_datasets=[]):
         common_uris = None
         result_sets = []
-
         intervals = []
         merged_intervals = []
         uri_list = None
