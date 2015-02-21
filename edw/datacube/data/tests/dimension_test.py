@@ -262,7 +262,7 @@ def test_indicator_groups_are_sorted():
     res = cube.get_dimension_options(dimension='indicator-group')
     codes = [y['notation'] for y in res]
     assert codes == ['telecom', 'broadband', 'bbquality', 'mobile',
-        'internet-usage', 'internet-services', 'egovernment', 'ecommerce',
+        'internet-usage', 'audiovisual', 'internet-services', 'egovernment', 'ecommerce',
         'ebusiness', 'ict-skills', 'ict-edu', 'eHealth',
         'research-and-development', 'ict-sector', 'back']
 
@@ -328,3 +328,43 @@ def test_dimension_options_xy_none_common():
     );
     # should return no result
     assert res == {}
+
+@sparql_test
+def test_dimension_options_xy_time_periods():
+    cube = create_cube()
+
+    res = cube.get_dimension_options_xy('time-period', [],
+         [('indicator', 'bb_hhi'),
+          ('breakdown', 'TOTAL_FBB'),
+          ('unit-measure', 'hhi')
+         ],
+         [
+          ('indicator', 'bb_scov'),
+          ('breakdown', 'TOTAL_POPHH'),
+          ('unit-measure', 'pc_hh_all')
+         ]
+    );
+    # should return only 2013
+    # the intersection of [2013-06,2014-06] and [2011,2012,2013]
+    codes = [y['notation'] for y in res]
+    assert codes == ['2013']
+
+@sparql_test
+def test_dimension_options_xy_time_periods2():
+    cube = create_cube()
+
+    res = cube.get_dimension_options_xy('time-period', [],
+         [('indicator', 'bb_hhi'),
+          ('breakdown', 'TOTAL_FBB'),
+          ('unit-measure', 'hhi')
+         ],
+         [
+          ('indicator', 'AAAA_cov'),
+          ('breakdown', '1M_websites'),
+          ('unit-measure', 'pc_websites')
+         ]
+    );
+    # should return only 2013
+    # the intersection of [2013-06,2014-06] and [2012-Q2, 2012-Q3, 2013-Q1..Q4]
+    codes = [y['notation'] for y in res]
+    assert codes == ['2013']

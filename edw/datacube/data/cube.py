@@ -387,7 +387,6 @@ class Cube(object):
             else:
                 uri_list = uri_list | res
                 common_uris = common_uris & res
-
         if dimension == 'time-period' and distinct_types:
             # Query the intervals
             query_intervals = sparql_env.get_template('dimension_options_intervals.sparql').render(**{
@@ -397,9 +396,24 @@ class Cube(object):
 
             merged_intervals = [item for interval in intervals
                                 for item in interval]
-            common_uris = set(item.get('parent_year')
-                              for item in merged_intervals)
 
+            # re-calculate common_uris based on parent interval
+            common_uris = None
+            for res in result_sets:
+                # get years from merged_intervals
+                years = []
+                for option in options(res):
+                  # search in merged_intervals
+                  interval = filter(lambda interval:interval['uri'] == option, merged_intervals)
+                  if ( interval == [] ):
+                      # this was a year, not present in merged_intervals
+                      years.append(option)
+                  else:
+                      years.append(interval[0]['parent_year'])
+                if common_uris is None:
+                    common_uris = set(years)
+                else:
+                    common_uris = common_uris & set(years)
         data = []
         for uri in common_uris:
             data.append((uri, dimension))
