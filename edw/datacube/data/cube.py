@@ -265,8 +265,11 @@ class Cube(object):
         })
         rv = list(self._execute(query))
         if not rv:
-            rv = [{'label': value, 'short_label': None}]
-        return rv
+            return [{'notation': value, 'label': value, 'short_label': None}]
+        else:
+            for x in rv:
+                x.update({'notation': value})
+            return rv
 
     def fix_notations(self, row):
         if not row['notation']:

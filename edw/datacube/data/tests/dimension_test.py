@@ -13,7 +13,10 @@ def test_get_group_dimensions():
 def test_unit_measure_labels_query():
     cube = create_cube()
     [res] = cube.get_dimension_labels(dimension='unit-measure', value='pc_ind')
-    expected = {'short_label': '% ind', 'label': 'Percentage of individuals'}
+    expected = {'short_label': '% of individuals', 'label': 'Percentage of individuals', 'notation': 'pc_ind'}
+    assert res['short_label'] == expected['short_label']
+    assert res['label'].startswith(expected['label'])
+    assert res['notation'] == expected['notation']
 
 
 @sparql_test
