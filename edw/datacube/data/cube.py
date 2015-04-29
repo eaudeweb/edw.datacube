@@ -89,7 +89,7 @@ class NotationMap(object):
             if group_notation:
                 self.GROUPERS[code] = group_notation
             if item['type_label'] == 'measure':
-                MEASURE = item['dimension']
+                self.MEASURE = item['dimension']
 
     def build_codelists(self, template='codelists.sparql'):
         query = sparql_env.get_template(template).render(
