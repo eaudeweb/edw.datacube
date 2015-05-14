@@ -175,6 +175,8 @@ class NotationMap(object):
                 self._add_item(data, uri, dimension, notation.lower())
             else:
                 logger.warn('new unknown uri %r', uri)
+                notation = re.split('[#/]', uri)[-1]
+                self._add_item(data, uri, dimension, notation.lower())
 
 
 class Cube(object):
@@ -453,7 +455,11 @@ class Cube(object):
         for uri in uri_list:
             if uri not in labels:
                 #add default labels for missing uris
-                notation = self.notations.lookup_uri(uri)['notation']
+                patched = self.notations.lookup_uri(uri)
+                if patched:
+                    notation = patched['notation']
+                else:
+                    notation = re.split('[#/]', uri)[-1]
                 result.append({
                     'uri': uri,
                     'group_notation': None,
