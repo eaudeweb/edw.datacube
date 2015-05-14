@@ -69,5 +69,5 @@ def test_get_dataset_details():
     assert i_iusell['sourcelabel'] == "Eurostat - ICT Households survey"
     assert "Extraction from HH/Indiv" in i_iusell['sourcenotes']
     assert i_iusell['sourcelink'] == (
-            'http://epp.eurostat.ec.europa.eu/portal'
-            '/page/portal/information_society/introduction')
+            'http://ec.europa.eu/eurostat'
+            '/web/information-society/data/comprehensive-database')

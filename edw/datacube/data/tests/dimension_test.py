@@ -224,8 +224,7 @@ def test_get_indicator_source_metadata():
     assert res['source_notes'] == (
         u"Extraction from HH/Indiv comprehensive database (ACCESS) version\xa0April 2014")
     assert res['source_url'] == (
-        "http://epp.eurostat.ec.europa.eu/portal/page/"
-        "portal/information_society/introduction")
+        "http://ec.europa.eu/eurostat/web/information-society/data/comprehensive-database")
 
 #@sparql_test
 #def test_dump_has_output():
@@ -267,7 +266,7 @@ def test_indicator_groups_are_sorted():
     assert codes == ['telecom', 'broadband', 'bbquality', 'mobile',
         'internet-usage', 'audiovisual', 'internet-services', 'egovernment', 'ecommerce',
         'ebusiness', 'ict-skills', 'ict-edu', 'eHealth',
-        'research-and-development', 'ict-sector', 'back']
+        'ict-sector', 'research-and-development', 'back']
 
 @sparql_test
 def test_dimension_options_sort_bug():
