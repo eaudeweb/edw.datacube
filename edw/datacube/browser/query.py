@@ -79,6 +79,11 @@ class AjaxDataView(BrowserView):
         res = self.cube.get_dimension_codelist(dimension)
         return self.jsonify(res)
 
+    def notations(self):
+        form = dict(self.request.form)
+        res = self.cube.notations.get()
+        return self.jsonify(res)
+
     @eeacache(cacheKey, dependencies=['edw.datacube'])
     def dimension_options(self):
         form = dict(self.request.form)

@@ -118,6 +118,14 @@
     />
 
   <browser:page
+    name="notations"
+    for="..interfaces.IDataCube"
+    class=".query.AjaxDataView"
+    attribute="notations"
+    permission="zope2.View"
+    />
+
+  <browser:page
     name="dimension_options_xy"
     for="..interfaces.IDataCube"
     class=".query.AjaxDataView"
