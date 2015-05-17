@@ -108,7 +108,13 @@ class NotationMap(object):
         by_uri = {}
         for row in self.cube._execute(query):
             namespace = re.split('[#/]', row['dimension'])[-1]
-            by_notation[namespace][row['notation'].lower()] = row
+            notation = row['notation'].lower()
+            if by_notation[namespace].get(notation):
+                # notation already exists, add a hash
+                hashstr = '_' + str(abs(hash(row['uri'])) % (10 ** 4))
+                notation = notation + hashstr
+                row['notation'] = row['notation'] + hashstr
+            by_notation[namespace][notation] = row
             by_uri[row['uri']] = row
         logger.info('notation cache loaded, %.2f seconds', time.time() - t0)
         return {
