@@ -14,5 +14,6 @@ SELECT DISTINCT ?uri ?notation ?label WHERE {
     ) && 
     ?dimension = {{ dimension_uri|uri_n3 }}
   )
+  FILTER(LANG(?label) = "" || LANGMATCHES(LANG(?label), "en"))
 }
 LIMIT 1000
