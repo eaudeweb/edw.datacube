@@ -1,8 +1,9 @@
 PREFIX qb: <http://purl.org/linked-data/cube#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX dad-prop: <http://semantic.digital-agenda-data.eu/def/property/>
 SELECT DISTINCT ?uri ?notation ?label ?short_label
-                ?group_notation ?order (xsd:string(?inner_order)) as ?inner_order WHERE {
+                ?group_notation ?order (xsd:string(?inner_orderraw) as ?inner_order) WHERE {
 
   ?uri
     skos:notation ?notation ;
@@ -14,7 +15,7 @@ OPTIONAL {
 OPTIONAL {
   ?uri dad-prop:membership ?group .
   ?group dad-prop:member-of [skos:notation ?group_notation].
-  OPTIONAL {?group dad-prop:order ?inner_order}
+  OPTIONAL {?group dad-prop:order ?inner_orderraw}
 }
 OPTIONAL {
   ?uri
