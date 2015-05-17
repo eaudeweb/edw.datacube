@@ -370,3 +370,10 @@ def test_dimension_options_xy_time_periods2():
     # the intersection of [2013-06,2014-06] and [2012-Q2, 2012-Q3, 2013-Q1..Q4]
     codes = [y['notation'] for y in res]
     assert codes == ['2013']
+
+@sparql_test
+def test_dimension_codelist():
+    cube = create_cube()
+    res = cube.get_dimension_codelist('indicator')
+    codes = [ (y['notation'], y['uri']) for y in res]
+    assert ('i_iuse', 'http://semantic.digital-agenda-data.eu/codelist/indicator/i_iuse') in codes

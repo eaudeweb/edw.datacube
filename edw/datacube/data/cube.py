@@ -438,6 +438,15 @@ class Cube(object):
         #rv.sort(key=lambda item: int(item.pop('order') or '0'))
         #return rv
 
+    def get_dimension_codelist(self, dimension):
+        query = sparql_env.get_template('codelist_values.sparql').render(**{
+            'dataset': self.dataset,
+            'dimension_code': dimension,
+            'notations': self.notations,
+        })
+        result = [row for row in self._execute(query)]
+        return result
+
     def get_labels_with_duplicates(self, data):
         if len(data) < 1:
             return {}
