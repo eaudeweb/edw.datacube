@@ -139,7 +139,7 @@ class NotationMap(object):
             ns = data['by_notation'][namespace]={}
         rv = ns.get(notation)
         if rv is None:
-            if namespace not in ['ref-area']:
+            if namespace not in ['ref-area'] and dict(self.CODELISTS)[namespace] is not None:
                 uri = dict(self.CODELISTS)[namespace] + notation,
                 rv = self._add_item(data, uri, namespace, notation)
             else:
