@@ -141,7 +141,6 @@ class NotationMap(object):
         notation = notation.lower()
         ns = data['by_notation'].get(namespace)
         if ns is None:
-        #    raise RuntimeError("Unknown namespace %r for notation %r"%(namespace, notation))
             ns = data['by_notation'][namespace]={}
         rv = ns.get(notation)
         if rv is None:
@@ -159,13 +158,17 @@ class NotationMap(object):
     @staticmethod
     def _add_item(data, uri, namespace, notation):
         logger.warn('patching namespace %r with missing notation %r for uri %r' %(namespace, notation, uri))
+        if not data['by_notation'].get(namespace):
+            data['by_notation'][namespace] = {}
+        if data['by_notation'][namespace].get(notation):
+            # notation already exists, add a hash
+            notation = notation + '_' + str(abs(hash(uri)) % (10 ** 4))
         row = {'uri': uri,
                'namespace': namespace,
                'notation': notation}
         data['by_uri'][uri] = row
-        if not data['by_notation'].get(namespace):
-            data['by_notation'][namespace] = {}
         data['by_notation'][namespace][notation] = row
+
         return row
 
     def touch_uri(self, uri, dimension):
@@ -465,10 +468,18 @@ class Cube(object):
         query = tmpl.render(**{
             'uri_list': uri_list,
         })
-        result = [row for row in self._execute(query)]
-        labels = {row['uri'] for row in result}
+        #result = [row for row in self._execute(query)]
+        result = []
+        for row in self._execute(query):
+            # make sure the notation is patched
+            # see handling of duplicates in _add_item
+            patched = self.notations.lookup_uri(row['uri'])
+            if patched:
+                row['notation'] = patched['notation']
+            result.append(row)
+        found_uris = {row['uri'] for row in result}
         for uri in uri_list:
-            if uri not in labels:
+            if uri not in found_uris:
                 #add default labels for missing uris
                 patched = self.notations.lookup_uri(uri)
                 if patched:
