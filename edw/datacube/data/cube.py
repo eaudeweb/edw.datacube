@@ -11,6 +11,7 @@ import datetime
 import re
 
 from decimal import Decimal
+from eea.cache import cache as eeacache
 
 SPARQL_DEBUG = bool(os.environ.get('SPARQL_DEBUG') == 'on')
 
@@ -49,6 +50,15 @@ class DataCache(object):
 
 data_cache = DataCache()
 
+def cacheKey(method, self, *args, **kwargs):
+    """ Generate unique cache id
+    """
+    return (self.cube.endpoint, self.cube.dataset)
+
+def cacheKeyCube(method, self, *args, **kwargs):
+    """ Generate unique cache id
+    """
+    return (self.endpoint, self.dataset, args, kwargs)
 
 class NotationMap(object):
 
@@ -91,6 +101,7 @@ class NotationMap(object):
             if item['type_label'] == 'measure':
                 self.MEASURE = item['dimension']
 
+    @eeacache(cacheKey, dependencies=['edw.datacube'])
     def build_codelists(self, template='codelists.sparql'):
         query = sparql_env.get_template(template).render(
             dataset=self.cube.dataset
@@ -295,6 +306,7 @@ class Cube(object):
         ])
         row['type_label'] = types.get(row['dimension_type'], 'dimension')
 
+    @eeacache(cacheKeyCube, dependencies=['edw.datacube'])
     def get_dimensions(self, flat=False):
         query = sparql_env.get_template('dimensions.sparql').render(**{
             'dataset': self.dataset,
@@ -314,6 +326,7 @@ class Cube(object):
                 })
             return dict(rv)
 
+    @eeacache(cacheKeyCube, dependencies=['edw.datacube'])
     def load_group_dimensions(self):
         query = sparql_env.get_template('group_dimensions.sparql').render(**{
             'dataset': self.dataset,
