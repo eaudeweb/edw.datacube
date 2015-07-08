@@ -232,7 +232,6 @@ class AjaxDataView(BrowserView):
             ('time-period', self.request.form['time-period']),
             ('indicator-group', self.request.form['indicator-group'])],
             whitelist))
-
         all_datapoint_rows.sort(key=lambda k: k['time-period']['notation'])
 
         # Compute new values
@@ -262,7 +261,7 @@ class AjaxDataView(BrowserView):
                     'min': {'value': None, 'ref-area': countryName},
                     'max': {'value': None, 'ref-area': countryName},
                     'med': {'value': point['value'], 'ref-area': countryName}
-            }
+                }
 
             # Update med
             if point['ref-area']['notation'] == 'EU27':
@@ -275,8 +274,11 @@ class AjaxDataView(BrowserView):
 
             # Update min
             oldValue = mapping[key]['min']['value']
-            newValue = min(point['value'], oldValue or point['value']);
-            if newValue != oldValue:
+            if oldValue is None:
+                newValue = point['value']
+            else:
+                newValue = min(point['value'], oldValue)
+            if oldValue is None or newValue != oldValue:
                 mapping[key]['min']['value'] = newValue
                 mapping[key]['min']['ref-area'] = point['ref-area']['notation']
 
