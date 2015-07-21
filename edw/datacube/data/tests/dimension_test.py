@@ -13,7 +13,10 @@ def test_get_group_dimensions():
 def test_unit_measure_labels_query():
     cube = create_cube()
     [res] = cube.get_dimension_labels(dimension='unit-measure', value='pc_ind')
-    expected = {'short_label': '% ind', 'label': 'Percentage of individuals'}
+    expected = {'short_label': '% of individuals', 'label': 'Percentage of individuals', 'notation': 'pc_ind'}
+    assert res['short_label'] == expected['short_label']
+    assert res['label'].startswith(expected['label'])
+    assert res['notation'] == expected['notation']
 
 
 @sparql_test
@@ -221,8 +224,7 @@ def test_get_indicator_source_metadata():
     assert res['source_notes'] == (
         u"Extraction from HH/Indiv comprehensive database (ACCESS) version\xa0April 2014")
     assert res['source_url'] == (
-        "http://epp.eurostat.ec.europa.eu/portal/page/"
-        "portal/information_society/introduction")
+        "http://ec.europa.eu/eurostat/web/information-society/data/comprehensive-database")
 
 #@sparql_test
 #def test_dump_has_output():
@@ -264,7 +266,7 @@ def test_indicator_groups_are_sorted():
     assert codes == ['telecom', 'broadband', 'bbquality', 'mobile',
         'internet-usage', 'audiovisual', 'internet-services', 'egovernment', 'ecommerce',
         'ebusiness', 'ict-skills', 'ict-edu', 'eHealth',
-        'research-and-development', 'ict-sector', 'back']
+        'ict-sector', 'research-and-development', 'back']
 
 @sparql_test
 def test_dimension_options_sort_bug():
@@ -368,3 +370,10 @@ def test_dimension_options_xy_time_periods2():
     # the intersection of [2013-06,2014-06] and [2012-Q2, 2012-Q3, 2013-Q1..Q4]
     codes = [y['notation'] for y in res]
     assert codes == ['2013']
+
+@sparql_test
+def test_dimension_codelist():
+    cube = create_cube()
+    res = cube.get_dimension_codelist('indicator')
+    codes = [ (y['notation'], y['uri']) for y in res]
+    assert ('i_iuse', 'http://semantic.digital-agenda-data.eu/codelist/indicator/i_iuse') in codes

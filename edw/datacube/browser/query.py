@@ -73,6 +73,18 @@ class AjaxDataView(BrowserView):
         return self.jsonify(labels)
 
     @eeacache(cacheKey, dependencies=['edw.datacube'])
+    def dimension_codelist(self):
+        form = dict(self.request.form)
+        dimension = form.pop('dimension')
+        res = self.cube.get_dimension_codelist(dimension)
+        return self.jsonify(res)
+
+    def notations(self):
+        form = dict(self.request.form)
+        res = self.cube.notations.get()
+        return self.jsonify(res)
+
+    @eeacache(cacheKey, dependencies=['edw.datacube'])
     def dimension_options(self):
         form = dict(self.request.form)
         form.pop('rev', None)
@@ -144,6 +156,10 @@ class AjaxDataView(BrowserView):
 
         rows = []
         for option in options.get('options', []):
+            if subtype == u'polar' and option.get('notation') == 'EU27':
+                rows.append(option)
+                continue
+
             if option.get('notation', '') not in eu and option.get('notation', '') not in ['NO', 'IS']:
                 continue
             rows.append(option)
@@ -220,7 +236,6 @@ class AjaxDataView(BrowserView):
             ('time-period', self.request.form['time-period']),
             ('indicator-group', self.request.form['indicator-group'])],
             whitelist))
-
         all_datapoint_rows.sort(key=lambda k: k['time-period']['notation'])
 
         # Compute new values
@@ -249,13 +264,12 @@ class AjaxDataView(BrowserView):
                 mapping[key] = {
                     'min': {'value': None, 'ref-area': countryName},
                     'max': {'value': None, 'ref-area': countryName},
-                    'med': {'value': point['value'], 'ref-area': countryName}
-            }
+                    'med': {'value': None, 'ref-area': 'EU27'}
+                }
 
             # Update med
             if point['ref-area']['notation'] == 'EU27':
                 mapping[key]['med']['value'] = point['value']
-                mapping[key]['med']['ref-area'] = point['ref-area']['notation']
 
             # Update min / max only for EU27 countries
             if point['ref-area']['notation'] not in eu:
@@ -263,8 +277,11 @@ class AjaxDataView(BrowserView):
 
             # Update min
             oldValue = mapping[key]['min']['value']
-            newValue = min(point['value'], oldValue or point['value']);
-            if newValue != oldValue:
+            if oldValue is None:
+                newValue = point['value']
+            else:
+                newValue = min(point['value'], oldValue)
+            if oldValue is None or newValue != oldValue:
                 mapping[key]['min']['value'] = newValue
                 mapping[key]['min']['ref-area'] = point['ref-area']['notation']
 
@@ -298,7 +315,7 @@ class AjaxDataView(BrowserView):
             val = point['value']
             minVal = mapping[key]['min']['value']
             maxVal = mapping[key]['max']['value']
-            medVal = mapping[key]['med']['value']
+            medVal = mapping[key]['med']['value'] or (minVal+maxVal)/2
             #rank = mapping[key]['rank']['value']
 
             point['original'] = val

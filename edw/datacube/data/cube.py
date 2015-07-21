@@ -11,6 +11,7 @@ import datetime
 import re
 
 from decimal import Decimal
+from eea.cache import cache as eeacache
 
 SPARQL_DEBUG = bool(os.environ.get('SPARQL_DEBUG') == 'on')
 
@@ -49,6 +50,15 @@ class DataCache(object):
 
 data_cache = DataCache()
 
+def cacheKey(method, self, *args, **kwargs):
+    """ Generate unique cache id
+    """
+    return (self.cube.endpoint, self.cube.dataset)
+
+def cacheKeyCube(method, self, *args, **kwargs):
+    """ Generate unique cache id
+    """
+    return (self.endpoint, self.dataset, args, kwargs)
 
 class NotationMap(object):
 
@@ -89,8 +99,9 @@ class NotationMap(object):
             if group_notation:
                 self.GROUPERS[code] = group_notation
             if item['type_label'] == 'measure':
-                MEASURE = item['dimension']
+                self.MEASURE = item['dimension']
 
+    @eeacache(cacheKey, dependencies=['edw.datacube'])
     def build_codelists(self, template='codelists.sparql'):
         query = sparql_env.get_template(template).render(
             dataset=self.cube.dataset
@@ -108,7 +119,13 @@ class NotationMap(object):
         by_uri = {}
         for row in self.cube._execute(query):
             namespace = re.split('[#/]', row['dimension'])[-1]
-            by_notation[namespace][row['notation'].lower()] = row
+            notation = row['notation'].lower()
+            if by_notation[namespace].get(notation):
+                # notation already exists, add a hash
+                hashstr = '_' + str(abs(hash(row['uri'])) % (10 ** 4))
+                notation = notation + hashstr
+                row['notation'] = row['notation'] + hashstr
+            by_notation[namespace][notation] = row
             by_uri[row['uri']] = row
         logger.info('notation cache loaded, %.2f seconds', time.time() - t0)
         return {
@@ -135,11 +152,10 @@ class NotationMap(object):
         notation = notation.lower()
         ns = data['by_notation'].get(namespace)
         if ns is None:
-        #    raise RuntimeError("Unknown namespace %r for notation %r"%(namespace, notation))
             ns = data['by_notation'][namespace]={}
         rv = ns.get(notation)
         if rv is None:
-            if namespace not in ['ref-area']:
+            if namespace not in ['ref-area'] and dict(self.CODELISTS)[namespace] is not None:
                 uri = dict(self.CODELISTS)[namespace] + notation,
                 rv = self._add_item(data, uri, namespace, notation)
             else:
@@ -153,13 +169,17 @@ class NotationMap(object):
     @staticmethod
     def _add_item(data, uri, namespace, notation):
         logger.warn('patching namespace %r with missing notation %r for uri %r' %(namespace, notation, uri))
+        if not data['by_notation'].get(namespace):
+            data['by_notation'][namespace] = {}
+        if data['by_notation'][namespace].get(notation):
+            # notation already exists, add a hash
+            notation = notation + '_' + str(abs(hash(uri)) % (10 ** 4))
         row = {'uri': uri,
                'namespace': namespace,
                'notation': notation}
         data['by_uri'][uri] = row
-        if not data['by_notation'].get(namespace):
-            data['by_notation'][namespace] = {}
         data['by_notation'][namespace][notation] = row
+
         return row
 
     def touch_uri(self, uri, dimension):
@@ -175,6 +195,8 @@ class NotationMap(object):
                 self._add_item(data, uri, dimension, notation.lower())
             else:
                 logger.warn('new unknown uri %r', uri)
+                notation = re.split('[#/]', uri)[-1]
+                self._add_item(data, uri, dimension, notation.lower())
 
 
 class Cube(object):
@@ -265,8 +287,11 @@ class Cube(object):
         })
         rv = list(self._execute(query))
         if not rv:
-            rv = [{'label': value, 'short_label': None}]
-        return rv
+            return [{'notation': value, 'label': value, 'short_label': None}]
+        else:
+            for x in rv:
+                x.update({'notation': value})
+            return rv
 
     def fix_notations(self, row):
         if not row['notation']:
@@ -281,6 +306,7 @@ class Cube(object):
         ])
         row['type_label'] = types.get(row['dimension_type'], 'dimension')
 
+    @eeacache(cacheKeyCube, dependencies=['edw.datacube'])
     def get_dimensions(self, flat=False):
         query = sparql_env.get_template('dimensions.sparql').render(**{
             'dataset': self.dataset,
@@ -300,6 +326,7 @@ class Cube(object):
                 })
             return dict(rv)
 
+    @eeacache(cacheKeyCube, dependencies=['edw.datacube'])
     def load_group_dimensions(self):
         query = sparql_env.get_template('group_dimensions.sparql').render(**{
             'dataset': self.dataset,
@@ -433,6 +460,15 @@ class Cube(object):
         #rv.sort(key=lambda item: int(item.pop('order') or '0'))
         #return rv
 
+    def get_dimension_codelist(self, dimension):
+        query = sparql_env.get_template('codelist_values.sparql').render(**{
+            'dataset': self.dataset,
+            'dimension_code': dimension,
+            'notations': self.notations,
+        })
+        result = [row for row in self._execute(query)]
+        return result
+
     def get_labels_with_duplicates(self, data):
         if len(data) < 1:
             return {}
@@ -445,12 +481,24 @@ class Cube(object):
         query = tmpl.render(**{
             'uri_list': uri_list,
         })
-        result = [row for row in self._execute(query)]
-        labels = {row['uri'] for row in result}
+        #result = [row for row in self._execute(query)]
+        result = []
+        for row in self._execute(query):
+            # make sure the notation is patched
+            # see handling of duplicates in _add_item
+            patched = self.notations.lookup_uri(row['uri'])
+            if patched:
+                row['notation'] = patched['notation']
+            result.append(row)
+        found_uris = {row['uri'] for row in result}
         for uri in uri_list:
-            if uri not in labels:
+            if uri not in found_uris:
                 #add default labels for missing uris
-                notation = self.notations.lookup_uri(uri)['notation']
+                patched = self.notations.lookup_uri(uri)
+                if patched:
+                    notation = patched['notation']
+                else:
+                    notation = re.split('[#/]', uri)[-1]
                 result.append({
                     'uri': uri,
                     'group_notation': None,
