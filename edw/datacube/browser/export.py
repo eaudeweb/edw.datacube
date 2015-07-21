@@ -119,6 +119,18 @@ class ExportCSV(BrowserView):
                 writer.writerow(encoded)
 
 
+    def datapoints_profile_polar(self, response, chart_data):
+        writer = csv.DictWriter(response, ['name', 'eu', 'original', 'period'], restval='')
+        writer.writeheader()
+        for series in chart_data:
+            for point in series['data']:
+                encoded = {}
+                encoded['name'] = unicode(point['title']).encode('utf-8')
+                encoded['eu'] = unicode(point['attributes']['eu']).encode('utf-8')
+                encoded['original'] = unicode(point['attributes']['original']).encode('utf-8')
+                encoded['period'] = unicode(point['attributes']['time-period']['notation']).encode('utf-8')
+                writer.writerow(encoded)
+
     def write_metadata(self, response, metadata):
         writer = UnicodeWriter(response, dialect=csv.excel)
         writer.writerow(['Chart title:', metadata.get('chart-title', '-')])
@@ -192,7 +204,8 @@ class ExportCSV(BrowserView):
             'scatter': self.datapoints_n,
             'bubbles': self.datapoints_n,
             'country_profile_bar': self.datapoints_profile,
-            'country_profile_table': self.datapoints_profile_table
+            'country_profile_table': self.datapoints_profile_table,
+            'country_profile_polar_polar': self.datapoints_profile_polar,
         }
 
         output_stream = self.request.response
