@@ -120,12 +120,16 @@ class ExportCSV(BrowserView):
 
 
     def datapoints_profile_polar(self, response, chart_data):
-        writer = csv.DictWriter(response, ['name', 'eu', 'original', 'period'], restval='')
+        writer = csv.DictWriter(response, ['country', 'category', 'indicator', 'breakdown', 'unit', 'eu', 'original', 'period'], restval='')
         writer.writeheader()
         for series in chart_data:
             for point in series['data']:
                 encoded = {}
-                encoded['name'] = unicode(point['title']).encode('utf-8')
+                encoded['country'] = unicode(point['attributes']['ref-area']['notation']).encode('utf-8')
+                encoded['category'] = unicode(point['title']).encode('utf-8')
+                encoded['indicator'] = unicode(point['attributes']['indicator']['notation']).encode('utf-8')
+                encoded['breakdown'] = unicode(point['attributes']['breakdown']['notation']).encode('utf-8')
+                encoded['unit'] = unicode(point['attributes']['unit-measure']['notation']).encode('utf-8')
                 encoded['eu'] = unicode(point['attributes']['eu']).encode('utf-8')
                 encoded['original'] = unicode(point['attributes']['original']).encode('utf-8')
                 encoded['period'] = unicode(point['attributes']['time-period']['notation']).encode('utf-8')
