@@ -519,6 +519,8 @@ class Cube(object):
         return labels
 
     def get_dimension_option_metadata_list(self, dimension, uri_list):
+        if not uri_list:
+            return []
         tmpl = sparql_env.get_template('dimension_option_metadata.sparql')
         query = tmpl.render(**{
             'dataset': self.dataset,
