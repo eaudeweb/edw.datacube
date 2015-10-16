@@ -269,11 +269,13 @@ class Cube(object):
         def _sort_key(item):
             try:
                 parent = int(item.get('parentOrder', None))
+            except (ValueError, TypeError):
+                parent = 9999
+            try:
                 inner = int(item.get('innerOrder', None))
             except (ValueError, TypeError):
-                parent = None
-                inner = None
-            return (parent, inner,)
+                inner = 9999
+            return (parent, item.get('groupName', None), inner)
 
         return sorted(res, key=_sort_key)
 
