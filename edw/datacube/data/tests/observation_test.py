@@ -56,7 +56,6 @@ def test_get_observations_with_notes_multidimension():
     ]
     cube = create_cube()
     points = list(cube.get_data_xyz('ref-area', filters, [], [], []))
-    import pytest;pytest.set_trace()
     note='Estimation - based on results of 2007 HH survey';
     assert filter(
       lambda item: item['ref-area']['notation'] == 'CZ',
