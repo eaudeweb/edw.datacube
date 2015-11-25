@@ -13,7 +13,7 @@ def test_get_same_observation_in_two_dimensions():
     cube = create_cube()
     points = list(cube.get_data_xy('ref-area', filters, [], []))
     assert len(points) == 1
-    assert points[0]['value'] == {'x': 0.2222, 'y': 0.2222}
+    assert points[0]['value'] == {'x': 0.222202, 'y': 0.222202}
 
 @sparql_test
 def test_get_observations_with_labels_xy():
@@ -56,9 +56,11 @@ def test_get_observations_with_notes_multidimension():
     ]
     cube = create_cube()
     points = list(cube.get_data_xyz('ref-area', filters, [], [], []))
-    assert points[7]['note']['x'] == 'CZ: Estimation - based on results of 2007 HH survey'
-    assert points[7]['note']['y'] == 'CZ: Estimation - based on results of 2007 HH survey'
-    assert points[7]['note']['z'] == 'CZ: Estimation - based on results of 2007 HH survey'
+    import pytest;pytest.set_trace()
+    note='Estimation - based on results of 2007 HH survey';
+    assert filter(
+      lambda item: item['ref-area']['notation'] == 'CZ',
+      points)[0]['note'] == {'x': note, 'y':note, 'z':note}
 
 
 @sparql_test
@@ -92,7 +94,7 @@ def test_get_same_observation_in_xyz_dimensions():
     cube = create_cube()
     points = list(cube.get_data_xyz('ref-area', filters, [], [], []))
     assert len(points) == 1
-    assert points[0]['value'] == {'x': 0.2222, 'y': 0.2222, 'z': 0.2222}
+    assert points[0]['value'] == {'x': 0.222202, 'y': 0.222202, 'z': 0.222202}
 
 
 @sparql_test
@@ -109,10 +111,10 @@ def test_get_xy_observations_for_2_countries_all_years():
     assert len(pts) >= 6
     assert filter(
                lambda item: item['time-period']['notation'] == '2011',
-               pts)[0]['value'] == {'x': 0.2222, 'y': 0.2795}
+               pts)[0]['value'] == {'x': 0.222202, 'y': 0.279457}
     assert filter(
                lambda item: item['time-period']['notation'] == '2012',
-               pts)[0]['value'] == {'x': 0.2811, 'y': 0.2892}
+               pts)[0]['value'] == {'x': 0.281144, 'y': 0.289237}
 
 
 @sparql_test
@@ -130,7 +132,7 @@ def test_get_xyz_observations_for_3_countries_all_years():
     assert len(pts) >= 5
     assert filter(
                lambda item: item['time-period']['notation'] == '2008',
-               pts)[0]['value'] == {'x': 0.1707, 'y': 0.1976, 'z': 0.2447}
+               pts)[0]['value'] == {'x': 0.170733, 'y': 0.197577, 'z': 0.244686}
 
 
 @sparql_test

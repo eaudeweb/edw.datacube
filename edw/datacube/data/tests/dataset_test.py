@@ -36,7 +36,7 @@ def test_dataset_dimensions_metadata():
                                       'ref-area', 'time-period']
     assert sorted(notations('dimension group')) == ['breakdown-group',
                                             'indicator-group']
-    assert sorted(notations('attribute')) == ['flag', 'note', 'unit-measure']
+    assert sorted(notations('attribute')) == ['flag', 'note']
     assert [d['label'] for d in res['measure']] == ['Observation']
 
 @sparql_test
@@ -53,7 +53,6 @@ def test_dataset_dimensions_flat_list():
         'obsValue',
         'ref-area',
         'time-period',
-        'unit-measure',
         'unit-measure',
     ]
 

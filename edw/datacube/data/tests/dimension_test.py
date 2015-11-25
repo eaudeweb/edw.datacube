@@ -347,9 +347,12 @@ def test_dimension_options_xy_time_periods():
          ]
     );
     # should return only 2013
-    # the intersection of [2013-06,2014-06] and [2011,2012,2013]
+    # the intersection of [2013-06,2014-06] and [2011,2012,2013,2014]
     codes = [y['notation'] for y in res]
-    assert codes == ['2013']
+    assert '2013' in codes
+    assert '2014' in codes
+    assert '2012' not in codes
+    assert '2013-06' not in codes
 
 @sparql_test
 def test_dimension_options_xy_time_periods2():
@@ -367,9 +370,12 @@ def test_dimension_options_xy_time_periods2():
          ]
     );
     # should return only 2013
-    # the intersection of [2013-06,2014-06] and [2012-Q2, 2012-Q3, 2013-Q1..Q4]
+    # the intersection of [2013-06,2014-06] and [2012-Q2, 2012-Q3, 2013-Q1..Q4, 2014-Q4]
     codes = [y['notation'] for y in res]
-    assert codes == ['2013']
+    assert '2013' in codes
+    assert '2014' in codes
+    assert '2012' not in codes
+    assert '2013-Q1' not in codes
 
 @sparql_test
 def test_dimension_codelist():

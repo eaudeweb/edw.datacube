@@ -12,14 +12,14 @@ WHERE {
   OPTIONAL { ?uri skos:notation ?notation }
   OPTIONAL { ?uri skos:prefLabel ?label }
   OPTIONAL { ?uri skos:altLabel ?short_label }
-  OPTIONAL { ?uri skos:notes ?note }
+  OPTIONAL { ?uri skos:note ?note }
   OPTIONAL { ?uri skos:definition ?definition }
   {%- if dimension == 'indicator' %}
     OPTIONAL { ?uri dc:source [
                skos:prefLabel ?source_label ;
                skos:definition ?source_definition ;
                foaf:page ?source_url ] }
-    OPTIONAL {?uri dc:source [skos:notes ?source_notes] }
+    OPTIONAL {?uri dc:source [skos:note ?source_notes] }
   {% endif %}
   OPTIONAL {
     ?uri dad-prop:membership ?parentNode.
