@@ -528,7 +528,21 @@ class Cube(object):
             'dimension': dimension
         })
         res = list(self._execute(query))
-        return [{k: row[k] for k in row if row[k] is not None} for row in res]
+        result = {}
+        for row in res:
+            uri = row['uri']
+            if uri in result:
+                obj = result[uri]
+            else:
+                result[uri] = obj = {}
+
+            for prop in row:
+                 if row[prop] is not None:
+                    obj[prop] = row[prop]
+            #import pytest;pytest.set_trace();
+
+        #result = [{k: row[k] for k in row if row[k] is not None} for row in res]
+        return result.values()
 
     def get_dimension_option_metadata(self, dimension, option):
         uri = self.notations.lookup_notation(dimension, option)['uri']
