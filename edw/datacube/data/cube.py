@@ -699,7 +699,6 @@ class Cube(object):
                     by_category[obs[join_by]].append(obs)
                     for key, value in obs.items():
                         if isinstance(value, basestring) and value.startswith('http://'):
-                            #import pytest;pytest.set_trace()
                             data.add((value, key))
 
         # GET LABELS FOR URIS

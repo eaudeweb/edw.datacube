@@ -32,16 +32,18 @@ def test_get_observations_with_labels_xy():
 @sparql_test
 def test_get_observations_with_notes_single_dimension():
     filters = [
-        ('indicator-group', 'ecommerce'),
-        ('indicator', 'i_bgoodo'),
+        ('indicator-group', 'egovernment'),
+        ('indicator', 'e_igov'),
         ('breakdown-group', 'total'),
-        ('breakdown', 'IND_TOTAL',),
-        ('unit-measure', 'pc_ind'),
-        ('time-period', '2006'),
+        ('breakdown', 'ent_all_xfin',),
+        ('unit-measure', 'pc_ent'),
+        ('time-period', '2013'),
     ]
     cube = create_cube()
     points = list(cube.get_observations(filters))
-    assert points[4]['note'] == 'Estimation - based on results of 2007 HH survey'
+    assert filter(
+      lambda item: item['ref-area']['notation'] == 'SI',
+      points)[0]['note'] == 'Outsourcing of contacts with public authorities via accounting enterprises included, thus data unreliable.'
 
 
 @sparql_test
