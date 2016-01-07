@@ -2,15 +2,11 @@
  {%- if option_code %}
   {%- set option_uri = notations.lookup_notation(dimension_code, option_code)['uri'] %}
   {%- set dimension_uri = notations.lookup_dimension_uri(dimension_code)['uri'] %}
-
   {%- if dimension_code in group_dimensions %}
-  ?{{ observation }}
-    ?{{ prefix }}_dimension ?{{ prefix }}_option_child .
-  ?{{ prefix }}_dimension
-    dad-prop:grouped-using dad-prop:{{ dimension_code }} .
-  ?{{ prefix }}_option_child
-    dad-prop:membership [
-      dad-prop:member-of {{ option_uri|uri_n3 }} ] .
+    {%- set grouper_uri = notations.lookup_dimension_uri_by_grouper(dimension_code)['uri'] %}
+    ?{{ observation }} {{ grouper_uri|uri_n3 }} [
+      dad-prop:membership [ dad-prop:member-of {{ option_uri|uri_n3 }} ]
+    ] .
 
   {%- elif dimension_code == 'time-period' %}
   {

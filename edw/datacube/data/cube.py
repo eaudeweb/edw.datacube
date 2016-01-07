@@ -87,6 +87,7 @@ class NotationMap(object):
         self.cube = cube
         self.CODELISTS = self.build_codelists()
         self.DIMENSIONS = {}
+        self.FQ_GROUPERS = {}
         self.GROUPERS = {}
 
         for item in self.cube.get_dimensions(flat=True):
@@ -98,6 +99,7 @@ class NotationMap(object):
             group_notation = item['group_notation']
             if group_notation:
                 self.GROUPERS[code] = group_notation
+                self.FQ_GROUPERS[group_notation] = uri
             if item['type_label'] == 'measure':
                 self.MEASURE = item['dimension']
 
@@ -141,6 +143,13 @@ class NotationMap(object):
         return {
             'uri': dict(self.DIMENSIONS).get(dimension_code),
             'namespace': dimension_code,
+            'notation': None
+        }
+
+    def lookup_dimension_uri_by_grouper(self, grouper_dimension_code):
+        return {
+            'uri': dict(self.FQ_GROUPERS).get(grouper_dimension_code),
+            'namespace': grouper_dimension_code,
             'notation': None
         }
 
