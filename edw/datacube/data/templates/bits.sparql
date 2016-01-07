@@ -51,27 +51,3 @@
       skos:altLabel ?{{ prefix }}_short_label .
   }
 {%- endmacro %}
-
-
-{% macro one_dimension(dimension_code) %}
-  {%- if dimension_code in group_dimensions %}
-  ?dimension
-    dad-prop:grouped-using dad-prop:{{ dimension_code }} .
-  ?option
-    dad-prop:membership [
-      dad-prop:member-of ?uri ] .
-
-  {%- else %}
-  ?dimension
-    skos:notation {{ dimension_code|literal_n3 }} .
-
-  {%- endif %}
-{%- endmacro %}
-
-{% macro group_dimension(dimension_code) %}
-  ?dimension
-    dad-prop:grouped-using dad-prop:{{ dimension_code }} .
-  ?option
-    dad-prop:membership [
-      dad-prop:member-of ?uri ] .
-{%- endmacro %}

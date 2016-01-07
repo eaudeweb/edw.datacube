@@ -1,4 +1,4 @@
-{%- from 'bits.sparql' import one_filter, one_dimension, group_dimension with context -%}
+{%- from 'bits.sparql' import one_filter with context -%}
 
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX qb: <http://purl.org/linked-data/cube#>
@@ -8,9 +8,6 @@ PREFIX interval: <http://reference.data.gov.uk/def/intervals/>
 PREFIX time: <http://www.w3.org/2006/time#>
 SELECT DISTINCT ?uri WHERE {
 
-{%- set variable = '?option'
-    if dimension_code in group_dimensions
-    else '?uri' %}
 {%- set obs_uri = notations.lookup_measure_uri() %}
 
     ?observation qb:dataSet {{ dataset|uri_n3 }} .
@@ -21,8 +18,9 @@ SELECT DISTINCT ?uri WHERE {
 {%- endfor %}
 
 {% if dimension_code in group_dimensions %}
-    ?observation ?dimension {{ variable }} .
-    {{ group_dimension(dimension_code) }}
+    {%- set groupee_uri = notations.lookup_dimension_uri_by_grouper(dimension_code)['uri'] %}
+    ?observation {{ groupee_uri|uri_n3 }} ?option .
+    ?option dad-prop:membership [ dad-prop:member-of ?uri ] .
 {%- else %}
     {#?observation dad-prop:{{ dimension_code }} ?uri.#}
     {%- set dimension_uri = notations.lookup_dimension_uri(dimension_code)['uri'] %}
